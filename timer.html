@@ -11,6 +11,131 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="拼豆计时器">
     <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        @media (max-width: 768px) {
+            .timer-page {
+                padding: 15px 12px 90px 12px !important;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .quick-timer-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .tables-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .table-card {
+                padding: 15px;
+            }
+            
+            .table-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .table-timer {
+                margin: 12px 0;
+                padding: 12px;
+            }
+            
+            .timer-display {
+                font-size: 1.5rem;
+                font-weight: 700;
+            }
+            
+            .customer-info {
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-top: 8px;
+            }
+            
+            .table-cost {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .table-actions .btn {
+                width: 100%;
+            }
+            
+            .modal-content {
+                max-width: 95% !important;
+                margin: 10px;
+                max-height: 90vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .modal-content h2 {
+                font-size: 1.3rem;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 16px;
+                padding: 12px;
+            }
+            
+            .checkout-info {
+                font-size: 0.9rem;
+            }
+            
+            .info-row {
+                padding: 8px 0;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+            
+            .merge-tables-list,
+            .other-charges-list {
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            
+            .empty-hint {
+                padding: 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app">

@@ -11,6 +11,197 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="拼豆计时器">
     <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        @media (max-width: 768px) {
+            .expense-page {
+                padding: 15px 12px 90px 12px !important;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .header-actions .btn {
+                width: 100%;
+            }
+            
+            .expense-stats-compact {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .stat-card.compact {
+                padding: 12px;
+            }
+            
+            .stat-card.compact .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .stat-card.compact .stat-value {
+                font-size: 1.1rem;
+            }
+            
+            .filter-section-compact {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .filter-section-compact .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+            
+            .filter-section-compact .filter-group label {
+                font-size: 0.9rem;
+            }
+            
+            .filter-section-compact .filter-group select,
+            .filter-section-compact .filter-group input {
+                width: 100%;
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            .expense-card.compact {
+                padding: 12px;
+                margin-bottom: 10px;
+            }
+            
+            .expense-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .expense-type {
+                font-size: 0.85rem;
+                padding: 4px 8px;
+            }
+            
+            .expense-amount {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+            
+            .expense-date {
+                font-size: 0.85rem;
+                color: #7f8c8d;
+                margin-bottom: 6px;
+            }
+            
+            .expense-note {
+                font-size: 0.85rem;
+                margin-bottom: 8px;
+            }
+            
+            .expense-bead-summary {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 8px;
+                font-size: 0.85rem;
+            }
+            
+            .expense-bead-summary .bead-tag {
+                padding: 3px 8px;
+                font-size: 0.75rem;
+                border-radius: 12px;
+            }
+            
+            .expense-actions {
+                display: flex;
+                justify-content: flex-end;
+            }
+            
+            .modal-content {
+                max-width: 95% !important;
+                margin: 10px;
+                max-height: 90vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .modal-content h2 {
+                font-size: 1.3rem;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 16px;
+                padding: 12px;
+            }
+            
+            .expense-bead-list {
+                max-height: 200px;
+                overflow-y: auto;
+            }
+            
+            .expense-bead-item {
+                flex-direction: row;
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+            
+            .expense-bead-color {
+                width: 40px;
+                height: 40px;
+                font-size: 0.7rem;
+                border-radius: 8px;
+            }
+            
+            .expense-bead-info {
+                flex: 1;
+                padding: 0 10px;
+            }
+            
+            .expense-bead-name {
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            
+            .expense-bead-amount {
+                font-size: 0.85rem;
+                color: #7f8c8d;
+            }
+            
+            .expense-bead-note {
+                font-size: 0.8rem;
+                color: #95a5a6;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+            
+            .empty-hint {
+                padding: 30px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app">

@@ -1459,89 +1459,178 @@ body {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+    /* 侧边栏移动端优化 - 底部导航栏 */
     .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
         width: 100%;
         height: auto;
-        position: relative;
+        background: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 8px 0 4px 0;
     }
     
-    .main-content {
-        margin-left: 0;
-        padding: 15px;
+    .logo {
+        display: none;
     }
     
     .nav-menu {
         display: flex;
-        overflow-x: auto;
-        padding: 10px 0;
+        flex-direction: row;
+        padding: 0;
+        overflow-x: visible;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
+        justify-content: space-around;
     }
     
     .nav-item {
-        padding: 10px 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 5px;
         white-space: nowrap;
-        font-size: 14px;
+        font-size: 10px;
+        flex: 1;
+        text-align: center;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        gap: 2px;
     }
     
     .nav-item .icon {
-        font-size: 18px;
-        margin-right: 8px;
+        font-size: 20px;
+        margin-right: 0;
+        line-height: 1;
     }
     
-    .server-info {
+    .nav-item span:last-child {
+        line-height: 1.2;
+    }
+    
+    .nav-item:hover {
+        background: transparent;
+    }
+    
+    .nav-item.active {
+        background: transparent;
+        border-bottom-color: #667eea;
+    }
+    
+    .server-info,
+    .sidebar-footer {
         display: none;
     }
     
-    .logo h2 {
-        font-size: 16px;
-    }
-    
-    .version {
-        font-size: 10px;
+    /* 主内容区移动端优化 - 为底部导航留出空间 */
+    .main-content {
+        margin-left: 0;
+        margin-right: 0;
+        padding: 15px 12px 80px 12px;
+        width: 100%;
     }
     
     .page-header {
         flex-direction: column;
         gap: 15px;
         align-items: flex-start;
+        margin-bottom: 20px;
     }
     
     .page-header h1 {
-        font-size: 22px;
+        font-size: 24px;
+        font-weight: 700;
     }
     
     .header-actions {
         width: 100%;
         flex-wrap: wrap;
+        gap: 10px;
     }
     
     .header-actions .form-control,
     .header-actions .search-input {
         width: 100%;
-        font-size: 14px;
+        font-size: 16px;
+        padding: 12px 15px;
     }
     
     .header-actions .btn {
         flex: 1;
-        min-width: 100px;
-        padding: 8px 12px;
-        font-size: 13px;
+        min-width: 120px;
+        padding: 12px 15px;
+        font-size: 14px;
     }
     
-    .tables-grid,
-    .bead-grid {
+    /* 桌位卡片网格移动端优化 */
+    .tables-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 15px;
     }
     
+    .table-card {
+        padding: 18px;
+        border-radius: 12px;
+    }
+    
+    .table-header {
+        margin-bottom: 12px;
+    }
+    
+    .table-header h3 {
+        font-size: 18px;
+    }
+    
+    .timer-display {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .cost-value {
+        font-size: 20px;
+    }
+    
+    .customer-info {
+        flex-wrap: wrap;
+        font-size: 13px;
+        gap: 8px;
+    }
+    
+    .table-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .table-actions .btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    /* 统计卡片移动端优化 */
     .stat-card {
-        padding: 15px;
+        padding: 18px;
+        border-radius: 12px;
     }
     
     .stat-card .stat-value {
-        font-size: 22px;
+        font-size: 24px;
     }
     
+    .stat-icon {
+        font-size: 40px;
+    }
+    
+    /* 统计概览移动端优化 */
     .stats-overview {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -1549,31 +1638,36 @@ body {
     
     .stats-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 12px;
     }
     
     .stats-grid .stat-card {
-        padding: 15px;
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
     
     .stats-grid .stat-card .stat-icon {
-        font-size: 28px;
+        font-size: 32px;
     }
     
     .stats-grid .stat-card .stat-info {
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
+        text-align: left;
     }
     
     .stats-summary {
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
+        padding-top: 15px;
     }
     
     .summary-item {
         display: flex;
         justify-content: space-between;
-        padding: 8px 0;
+        padding: 10px 0;
         border-bottom: 1px solid #e0e0e0;
     }
     
@@ -1581,46 +1675,370 @@ body {
         border-bottom: none;
     }
     
+    /* 快速统计卡片移动端优化 */
+    .quick-timer-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    /* 桌位迷你网格移动端优化 */
+    .table-grid-three-columns {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    
+    .table-mini {
+        padding: 10px;
+    }
+    
+    .table-mini .table-name {
+        font-size: 12px;
+    }
+    
+    .table-mini .table-status {
+        font-size: 10px;
+    }
+    
+    /* 库存管理移动端优化 */
+    .bead-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .bead-item {
+        padding: 10px;
+    }
+    
+    .bead-code {
+        font-size: 13px;
+    }
+    
+    .bead-stock {
+        font-size: 11px;
+    }
+    
+    .bead-actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .bead-btn {
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    /* 筛选栏移动端优化 */
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-controls .form-control {
+        width: 100%;
+    }
+    
+    /* 表单移动端优化 */
+    .form-control {
+        font-size: 16px;
+        padding: 12px 15px;
+    }
+    
+    /* 按钮移动端优化 */
+    .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+    
+    /* 弹窗移动端优化 */
+    .modal {
+        padding: 10px;
+    }
+    
     .modal-content {
-        margin: 10px;
-        padding: 15px;
+        margin: 0;
+        padding: 20px;
         max-width: 100%;
-        max-height: 95vh;
+        max-height: 90vh;
+        border-radius: 16px;
     }
     
     .modal-content h2 {
-        font-size: 18px;
-        margin-bottom: 15px;
+        font-size: 20px;
+        margin-bottom: 20px;
     }
     
     .modal-actions {
         flex-direction: column;
+        gap: 10px;
     }
     
     .modal-actions .btn {
         width: 100%;
     }
     
-    /* 计时器移动端优化 */
-    .timer-display {
+    /* 标签页移动端优化 */
+    .inventory-tabs {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 5px;
+        gap: 8px;
+    }
+    
+    .tab-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    
+    /* 收支管理标签页移动端优化 */
+    .tab-container {
+        margin-top: 20px;
+    }
+    
+    .tab-header {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 8px;
+        padding-bottom: 5px;
+    }
+    
+    .tab-header .tab-btn {
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    
+    /* 订单和支出项移动端优化 */
+    .order-item,
+    .expense-item {
+        padding: 15px;
+        border-radius: 12px;
+    }
+    
+    .order-amount,
+    .expense-amount {
+        font-size: 20px;
+    }
+    
+    /* 设置页面移动端优化 */
+    .settings-section {
+        padding: 18px;
+        border-radius: 12px;
+    }
+    
+    .settings-section h2 {
+        font-size: 18px;
+    }
+    
+    .form-group label {
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    /* 桌位操作行移动端优化 */
+    .table-actions-row {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .table-actions-row .btn {
+        width: 100%;
+    }
+    
+    /* 首页欢迎页移动端优化 */
+    .welcome-page {
+        padding: 15px 12px 90px 12px;
+    }
+    
+    .welcome-header {
+        padding: 25px 15px;
+        margin-bottom: 25px;
+    }
+    
+    .welcome-header h1 {
         font-size: 24px;
     }
     
-    .table-card {
+    .welcome-header .subtitle {
+        font-size: 14px;
+    }
+    
+    .section-title {
+        font-size: 18px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .stat-card {
         padding: 15px;
     }
     
-    .table-header h3 {
+    .stat-icon {
+        font-size: 36px;
+    }
+    
+    .stat-value {
+        font-size: 24px;
+    }
+    
+    .access-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .access-card {
+        padding: 20px 15px;
+    }
+    
+    .access-icon {
+        font-size: 36px;
+    }
+    
+    .access-card h3 {
         font-size: 16px;
     }
     
-    .cost-value {
+    .table-overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .table-stat {
+        padding: 15px;
+    }
+    
+    /* 色系网格移动端优化 */
+    .color-series-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    /* 费用列表移动端优化 */
+    .filter-section {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-section .filter-group {
+        width: 100%;
+    }
+    
+    .filter-section .filter-group select {
+        width: 100%;
+    }
+    
+    /* 统计图表移动端优化 */
+    .stats-chart {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .stats-chart h3 {
         font-size: 16px;
     }
     
-    .customer-info {
-        flex-wrap: wrap;
+    /* 用户列表和合伙人列表移动端优化 */
+    .user-table,
+    .partner-table {
         font-size: 12px;
+    }
+    
+    .user-table th,
+    .partner-table th {
+        padding: 10px 5px;
+    }
+    
+    .user-table td,
+    .partner-table td {
+        padding: 8px 5px;
+    }
+    
+    /* 其他优化 */
+    .inventory-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .inventory-header > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .inventory-header .btn {
+        width: 100%;
+    }
+    
+    /* 登录弹窗移动端优化 */
+    .login-content {
+        padding: 30px 20px;
+        margin: 10px;
+        max-width: 100%;
+    }
+    
+    .login-header h2 {
+        font-size: 24px;
+    }
+    
+    /* 滚动优化 */
+    .table-list,
+    .record-list,
+    .bead-grid {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 表格移动端优化 */
+    .charge-items-table,
+    .user-table,
+    .partner-table {
+        font-size: 12px;
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .charge-items-table th,
+    .charge-items-table td,
+    .user-table th,
+    .user-table td,
+    .partner-table th,
+    .partner-table td {
+        padding: 10px 8px;
+        white-space: nowrap;
+    }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 360px) {
+    .quick-timer-stats,
+    .stats-grid,
+    .access-grid,
+    .table-overview-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .bead-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .table-grid-three-columns {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 

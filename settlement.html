@@ -11,6 +11,192 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="拼豆计时器">
     <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        @media (max-width: 768px) {
+            .settlement-page {
+                padding: 15px 12px 90px 12px !important;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .header-actions .btn {
+                width: 100%;
+            }
+            
+            .settlement-stats-compact {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .stat-card.compact {
+                padding: 12px;
+            }
+            
+            .stat-card.compact .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .stat-card.compact .stat-value {
+                font-size: 1.1rem;
+            }
+            
+            .filter-section-compact {
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .filter-section-compact .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 5px;
+            }
+            
+            .filter-section-compact .filter-group label {
+                font-size: 0.9rem;
+            }
+            
+            .filter-section-compact .filter-group select,
+            .filter-section-compact .filter-group input {
+                width: 100%;
+                font-size: 16px;
+                padding: 10px;
+            }
+            
+            .order-card.compact {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .order-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            
+            .order-table {
+                font-size: 1rem;
+                font-weight: 600;
+            }
+            
+            .order-date {
+                font-size: 0.85rem;
+                color: #7f8c8d;
+            }
+            
+            .order-detail {
+                display: flex;
+                justify-content: space-between;
+                padding: 5px 0;
+                font-size: 0.9rem;
+            }
+            
+            .order-total {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                margin-top: 10px;
+                border-top: 1px solid #ecf0f1;
+            }
+            
+            .order-total.total-amount {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+            
+            .order-total.actual {
+                color: #27ae60;
+            }
+            
+            .order-total.actual .total-amount {
+                font-size: 1.2rem;
+            }
+            
+            .order-bead-usage {
+                margin: 10px 0;
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 8px;
+            }
+            
+            .order-bead-usage-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            
+            .order-bead-usage-list {
+                max-height: 150px;
+                overflow-y: auto;
+            }
+            
+            .order-bead-usage-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 4px 0;
+                font-size: 0.85rem;
+            }
+            
+            .bead-code {
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                font-size: 0.65rem;
+                color: white;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            }
+            
+            .bead-amount {
+                margin-left: auto;
+                color: #7f8c8d;
+            }
+            
+            .order-notes {
+                padding: 10px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                margin-top: 10px;
+                font-size: 0.85rem;
+            }
+            
+            .order-notes div {
+                padding: 3px 0;
+            }
+            
+            .order-actions {
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+            
+            .order-actions .btn {
+                width: auto;
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .empty-hint {
+                padding: 30px 20px;
+                font-size: 0.9rem;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app">

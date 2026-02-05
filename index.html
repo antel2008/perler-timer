@@ -406,20 +406,187 @@
         }
         
         @media (max-width: 768px) {
+            .welcome-page {
+                padding: 15px 12px 90px 12px;
+            }
+            
+            .welcome-header {
+                padding: 25px 15px;
+                margin-bottom: 20px;
+            }
+            
             .welcome-header h1 {
-                font-size: 28px;
+                font-size: 24px;
+            }
+            
+            .welcome-header .subtitle {
+                font-size: 14px;
+            }
+            
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .today-stats {
+                margin-bottom: 30px;
             }
             
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 18px 15px;
+                border-radius: 12px;
+            }
+            
+            .stat-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+            
+            .stat-label {
+                font-size: 13px;
+            }
+            
+            .stat-value {
+                font-size: 24px;
+            }
+            
+            .stat-change {
+                font-size: 12px;
+            }
+            
+            .quick-access {
+                margin-bottom: 30px;
             }
             
             .access-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .access-card {
+                padding: 20px 15px;
+                border-radius: 12px;
+            }
+            
+            .access-icon {
+                font-size: 36px;
+                margin-bottom: 12px;
+            }
+            
+            .access-card h3 {
+                font-size: 16px;
+                margin-bottom: 6px;
+            }
+            
+            .access-card p {
+                font-size: 13px;
+            }
+            
+            .table-status-overview {
+                padding: 20px 15px;
+                border-radius: 12px;
             }
             
             .table-overview-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .table-stat {
+                padding: 15px;
+                border-radius: 10px;
+            }
+            
+            .table-stat-icon {
+                font-size: 32px;
+            }
+            
+            .table-stat-label {
+                font-size: 13px;
+            }
+            
+            .table-stat-value {
+                font-size: 24px;
+            }
+            
+            /* 用户信息移动端优化 */
+            .user-info {
+                margin-bottom: 12px;
+                padding: 12px 15px;
+            }
+            
+            .user-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+            
+            .user-name {
+                font-size: 14px;
+            }
+            
+            .user-role {
+                font-size: 11px;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            /* 登录弹窗移动端优化 */
+            .login-modal {
+                padding: 15px;
+            }
+            
+            .login-content {
+                padding: 30px 20px;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            .login-header h2 {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            
+            .login-header p {
+                font-size: 13px;
+            }
+            
+            .form-group input {
+                font-size: 16px;
+                padding: 12px 15px;
+            }
+            
+            .login-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .stats-grid,
+            .access-grid,
+            .table-overview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .welcome-header h1 {
+                font-size: 22px;
+            }
+            
+            .stat-icon {
+                font-size: 32px;
+            }
+            
+            .stat-value {
+                font-size: 22px;
             }
         }
     </style>

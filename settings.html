@@ -12,6 +12,240 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="拼豆计时器">
     <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        /* 设置页面移动端优化 */
+        @media (max-width: 768px) {
+            .settings-page {
+                padding: 15px 12px 90px 12px !important;
+            }
+            
+            .page-header h1 {
+                font-size: 24px !important;
+                margin-bottom: 20px;
+            }
+            
+            .settings-section {
+                padding: 18px 15px !important;
+                border-radius: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .settings-section h2 {
+                font-size: 18px !important;
+                margin-bottom: 15px;
+            }
+            
+            .form-group {
+                margin-bottom: 18px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            /* 店铺图标上传区移动端优化 */
+            .icon-upload-area {
+                text-align: center;
+            }
+            
+            .icon-preview {
+                width: 60px;
+                height: 60px;
+                margin: 0 auto 15px;
+            }
+            
+            .icon-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .icon-actions input,
+            .icon-actions button {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            /* 桌位操作行移动端优化 */
+            .table-actions-row {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .table-actions-row .btn {
+                width: 100%;
+                padding: 12px;
+            }
+            
+            /* 桌位列表移动端优化 */
+            .table-list-mini {
+                margin: 15px 0;
+            }
+            
+            .table-grid-three-columns {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 10px;
+            }
+            
+            .table-mini {
+                padding: 10px 8px;
+            }
+            
+            .table-mini .table-name {
+                font-size: 12px;
+            }
+            
+            .table-mini .table-status {
+                font-size: 10px;
+            }
+            
+            /* 费用分摊表格移动端优化 */
+            .partner-table,
+            .user-table,
+            .charge-items-table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .partner-table th,
+            .partner-table td,
+            .user-table th,
+            .user-table td,
+            .charge-items-table th,
+            .charge-items-table td {
+                padding: 10px 8px;
+                white-space: nowrap;
+            }
+            
+            /* 添加用户和合伙人输入网格移动端优化 */
+            .settings-section form[style*="grid-template-columns"] {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .settings-section form[style*="grid-template-columns"] input,
+            .settings-section form[style*="grid-template-columns"] select,
+            .settings-section form[style*="grid-template-columns"] button {
+                width: 100%;
+            }
+            
+            /* 设置操作按钮移动端优化 */
+            .settings-actions {
+                margin-top: 20px;
+                padding: 0 15px;
+            }
+            
+            .settings-actions .btn {
+                width: 100%;
+                padding: 14px;
+                font-size: 15px;
+            }
+            
+            /* 模态框移动端优化 */
+            .modal {
+                padding: 10px;
+            }
+            
+            .modal-content {
+                margin: 0 !important;
+                padding: 20px !important;
+                max-width: 100%;
+                border-radius: 12px;
+            }
+            
+            .modal-content h2 {
+                font-size: 20px !important;
+                margin-bottom: 15px;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+            }
+            
+            /* 弹窗中的表单移动端优化 */
+            .modal-content .form-group label {
+                font-size: 14px;
+            }
+            
+            .modal-content .form-control {
+                font-size: 14px;
+                padding: 12px 15px;
+            }
+            
+            /* 颜色管理列表移动端优化 */
+            .color-manage-list {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .color-manage-item {
+                padding: 12px;
+            }
+            
+            .color-manage-preview {
+                width: 40px;
+                height: 40px;
+                font-size: 12px;
+            }
+            
+            .color-manage-name {
+                font-size: 14px;
+            }
+            
+            .color-manage-details {
+                font-size: 11px;
+            }
+            
+            .color-manage-actions {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            /* 空状态移动端优化 */
+            .empty-state {
+                padding: 40px 20px !important;
+            }
+            
+            .empty-icon {
+                font-size: 48px;
+            }
+            
+            .empty-text {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .settings-section h2 {
+                font-size: 16px !important;
+            }
+            
+            .table-grid-three-columns {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+            
+            .table-mini .table-name {
+                font-size: 11px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app">

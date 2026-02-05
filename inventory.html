@@ -21,6 +21,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         
         .inventory-stats {
@@ -28,6 +30,257 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .inventory-page {
+                padding: 15px 12px 90px 12px;
+            }
+            
+            .inventory-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .inventory-header > div {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .inventory-header h1 {
+                font-size: 24px;
+            }
+            
+            .inventory-header .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .inventory-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .stat-card {
+                padding: 18px 15px;
+                border-radius: 12px;
+            }
+            
+            .stat-card .label {
+                font-size: 13px;
+            }
+            
+            .stat-card .value {
+                font-size: 24px;
+            }
+            
+            .inventory-tabs {
+                display: flex;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 5px;
+                gap: 8px;
+            }
+            
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+            
+            .color-series-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .color-series-card {
+                padding: 18px 15px;
+                border-radius: 12px;
+            }
+            
+            .series-header {
+                padding-bottom: 12px;
+                margin-bottom: 12px;
+            }
+            
+            .series-color {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .series-name {
+                font-size: 16px;
+            }
+            
+            .bead-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .bead-item {
+                padding: 10px 8px;
+                border-radius: 8px;
+            }
+            
+            .bead-code {
+                font-size: 13px;
+            }
+            
+            .bead-stock {
+                font-size: 11px;
+            }
+            
+            .bead-actions {
+                flex-direction: column;
+                gap: 4px;
+                margin-top: 8px;
+            }
+            
+            .bead-btn {
+                font-size: 10px;
+                padding: 4px 6px;
+            }
+            
+            .filter-bar {
+                flex-direction: column;
+                gap: 12px;
+                padding: 15px;
+                border-radius: 12px;
+            }
+            
+            .filter-controls {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            
+            .filter-controls .form-control {
+                width: 100%;
+                padding: 12px;
+                font-size: 14px;
+            }
+            
+            .search-box input {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                margin: 0;
+                max-width: 100%;
+                border-radius: 12px;
+            }
+            
+            .modal-header h2 {
+                font-size: 20px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+            }
+            
+            .form-control {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            .modal-actions .btn {
+                width: 100%;
+                padding: 12px;
+            }
+            
+            .batch-in-list {
+                max-height: 250px;
+            }
+            
+            .batch-in-item {
+                padding: 8px 10px;
+                border-radius: 8px;
+            }
+            
+            .batch-in-item label {
+                font-size: 13px;
+            }
+            
+            .batch-in-item input {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            /* 统计图表移动端优化 */
+            .stats-chart {
+                padding: 15px;
+                margin-bottom: 15px;
+                border-radius: 12px;
+            }
+            
+            .stats-chart h3 {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+            
+            .rank-item {
+                padding: 10px 12px;
+                border-radius: 8px;
+            }
+            
+            .rank-number {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+            
+            .rank-name {
+                font-size: 14px;
+            }
+            
+            .rank-value {
+                font-size: 11px;
+            }
+            
+            .rank-amount {
+                font-size: 16px;
+            }
+            
+            .trend-line {
+                height: 120px;
+                gap: 8px;
+            }
+            
+            .trend-bar {
+                width: 24px;
+            }
+            
+            .trend-label {
+                font-size: 10px;
+            }
+            
+            .trend-value {
+                font-size: 11px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .inventory-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .bead-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .overview-cards {
+                grid-template-columns: 1fr;
+            }
         }
         
         .stat-card {
@@ -155,6 +408,7 @@
             z-index: 2000;
             justify-content: center;
             align-items: center;
+            padding: 10px;
         }
         
         .modal.active {
@@ -164,9 +418,9 @@
         .modal-content {
             background: white;
             border-radius: 16px;
-            padding: 30px;
+            padding: 25px 20px;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
         }
