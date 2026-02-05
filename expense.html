@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>费用管理 - 拼豆计时器 Pro V1.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="拼豆计时器">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <a href="index.html" class="logo">
+                <h2 id="shopNameDisplay">拼豆计时器</h2>
+                <span class="version">V1.0</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="timer.html" class="nav-item">
+                    <span class="icon">⏱️</span>
+                    <span>计时管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="icon">📦</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="expense.html" class="nav-item active">
+                    <span class="icon">💰</span>
+                    <span>费用管理</span>
+                </a>
+                <a href="settlement.html" class="nav-item">
+                    <span class="icon">📊</span>
+                    <span>结算统计</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="expense-page">
+                <div class="page-header">
+                    <h1>💰 费用管理</h1>
+                    <div class="header-actions">
+                        <button onclick="openAddExpenseModal()" class="btn btn-success">➕ 添加费用</button>
+                        <button onclick="exportExpenses()" class="btn btn-secondary">📤 导出报表</button>
+                    </div>
+                </div>
+                
+                <!-- 费用统计卡片（紧凑版） -->
+                <div class="expense-stats-compact">
+                    <div class="stat-card compact">
+                        <div class="stat-label">今日支出</div>
+                        <div class="stat-value" id="todayExpense">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">本月支出</div>
+                        <div class="stat-value" id="monthExpense">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">总支出</div>
+                        <div class="stat-value" id="totalExpense">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">净利润</div>
+                        <div class="stat-value" id="netProfit">¥0.00</div>
+                    </div>
+                </div>
+                
+                <!-- 筛选区（紧凑版） -->
+                <div class="filter-section-compact">
+                    <div class="filter-group">
+                        <label>类型：</label>
+                        <select id="expenseTypeFilter" class="form-control compact" onchange="loadExpenses()">
+                            <option value="all">全部</option>
+                            <option value="rent">房租</option>
+                            <option value="purchase">进货</option>
+                            <option value="utilities">水电</option>
+                            <option value="salary">人工</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>月份：</label>
+                        <input type="month" id="expenseMonthFilter" class="form-control compact" onchange="loadExpenses()">
+                    </div>
+                </div>
+                
+                <!-- 费用列表 -->
+                <div id="expenseList" class="expense-list-compact"></div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 添加费用弹窗 -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>➕ 添加费用</h2>
+            <div class="form-group">
+                <label>费用类型</label>
+                <select id="expenseType" class="form-control" onchange="toggleExpenseBeadSection()">
+                    <option value="rent">房租</option>
+                    <option value="purchase">进货</option>
+                    <option value="utilities">水电</option>
+                    <option value="salary">人工</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>金额（元）</label>
+                <input type="number" id="expenseAmount" class="form-control" step="0.01" min="0" placeholder="请输入金额">
+            </div>
+            <div class="form-group">
+                <label>日期</label>
+                <input type="date" id="expenseDate" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <textarea id="expenseNote" class="form-control" placeholder="备注信息..."></textarea>
+            </div>
+            
+            <div id="expenseBeadSection" style="display: none;">
+                <hr>
+                <div class="form-group">
+                    <label>🎨 关联拼豆库存</label>
+                    <div id="expenseBeadList" class="expense-bead-list"></div>
+                    <button onclick="addExpenseBeadItem()" class="btn btn-sm btn-success" style="margin-top: 10px;">➕ 添加拼豆</button>
+>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button onclick="closeAddExpenseModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmAddExpense()" class="btn btn-success">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 费用拼豆项弹窗 -->
+    <div id="expenseBeadItemModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>🎨 添加拼豆</h2>
+            <div class="form-group">
+                <label>选择色号</label>
+                <select id="expenseBeadColorSelect" class="form-control">
+                    <option value="">请选择色号...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>数量（克）</label>
+                <input type="number" id="expenseBeadAmount" class="form-control" step="1" min="1" placeholder="例如：500">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <input type="text" id="expenseBeadNote" class="form-control" placeholder="备注信息...">
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeExpenseBeadItemModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmAddExpenseBeadItem()" class="btn btn-success">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="bead-data.js"></script>
+    <script src="common.js"></script>
+    <script>
+        // 当前费用拼豆记录
+        let currentExpenseBeads = [];
+        
+        // 初始化页面
+        function initExpensePage() {
+            loadConfig();
+            updateShopNameDisplay();
+            loadExpenses();
+            
+            // 设置默认日期
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+        }
+        
+        // 切换费用拼豆区域显示
+        function toggleExpenseBeadSection() {
+            const type = document.getElementById('expenseType').value;
+            const section = document.getElementById('expenseBeadSection');
+            
+            if (type === 'purchase') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+        
+        // 加载费用拼豆色号选择器
+        function loadExpenseBeadColorSelect() {
+            const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            const select = document.getElementById('expenseBeadColorSelect');
+            
+            if (beads.length === 0) {
+                const defaultBeads = [...mard221Colors].map(c => ({
+                    code: c.code,
+                    name: c.name,
+                    color: c.color,
+                    stock: 0,
+                    stockGram: 0
+                }));
+                localStorage.setItem('perlerTimerBeads', JSON.stringify(defaultBeads));
+                loadExpenseBeadColorSelect();
+                return;
+            }
+            
+            select.innerHTML = '<option value="">请选择色号...</option>';
+            beads.forEach(bead => {
+                const option = document.createElement('option');
+                option.value = bead.code;
+                option.textContent = `${bead.code} - ${bead.name}`;
+                option.style.color = bead.color;
+                select.appendChild(option);
+            });
+        }
+        
+        // 打开费用拼豆项弹窗
+        function openExpenseBeadItemModal() {
+            loadExpenseBeadColorSelect();
+            document.getElementById('expenseBeadColorSelect').value = '';
+            document.getElementById('expenseBeadAmount').value = '';
+            document.getElementById('expenseBeadNote').value = '';
+            document.getElementById('expenseBeadItemModal').style.display = 'flex';
+        }
+        
+        // 关闭费用拼豆项弹窗
+        function closeExpenseBeadItemModal() {
+            document.getElementById('expenseBeadItemModal').style.display = 'none';
+        }
+        
+        // 确认添加费用拼豆项
+        function confirmAddExpenseBeadItem() {
+            const colorCode = document.getElementById('expenseBeadColorSelect').value;
+            const amount = parseInt(document.getElementById('expenseBeadAmount').value) || 0;
+            const note = document.getElementById('expenseBeadNote').value;
+            
+            if (!colorCode) {
+                alert('请选择色号！');
+                return;
+            }
+            
+            if (amount <= 0) {
+                alert('请输入有效的数量！');
+                return;
+            }
+            
+            const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            const bead = beads.find(b => b.code === colorCode);
+            
+            if (!bead) {
+                alert('色号不存在！');
+                return;
+            }
+            
+            currentExpenseBeads.push({
+                code: bead.code,
+                name: bead.name,
+                color: bead.color,
+                amount: amount,
+                note: note
+            });
+            
+            updateExpenseBeadList();
+            closeExpenseBeadItemModal();
+        }
+        
+        // 删除费用拼豆项
+        function removeExpenseBeadItem(index) {
+            currentExpenseBeads.splice(index, 1);
+            updateExpenseBeadList();
+        }
+        
+        // 更新费用拼豆列表显示
+        function updateExpenseBeadList() {
+            const container = document.getElementById('expenseBeadList');
+            
+            if (currentExpenseBeads.length === 0) {
+                container.innerHTML = '<div class="empty-hint">暂无拼豆记录</div>';
+                return;
+            }
+            
+            container.innerHTML = currentExpenseBeads.map((item, index) => `
+                <div class="expense-bead-item">
+                    <div class="expense-bead-color" style="background-color: ${item.color};">
+                        ${item.code}
+                    </div>
+                    <div class="expense-bead-info">
+                        <div class="expense-bead-name">${item.name}</div>
+                        <div class="expense-bead-amount">${item.amount}g</div>
+                        ${item.note ? `<div class="expense-bead-note">${item.note}</div>` : ''}
+                    </div>
+                    <button onclick="removeExpenseBeadItem(${index})" class="btn btn-sm btn-danger">删除</button>
+                </div>
+            `).join('');
+        }
+        
+        // 添加费用拼豆项（按钮调用）
+        function addExpenseBeadItem() {
+            openExpenseBeadItemModal();
+        }
+        
+        // 加载费用列表
+        function loadExpenses() {
+            const typeFilter = document.getElementById('expenseTypeFilter').value;
+            const monthFilter = document.getElementById('expenseMonthFilter').value;
+            const container = document.getElementById('expenseList');
+            
+            let expenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+            
+            // 按类型筛选
+            if (typeFilter !== 'all') {
+                expenses = expenses.filter(e => e.type === typeFilter);
+            }
+            
+            // 按月份筛选
+            if (monthFilter) {
+                expenses = expenses.filter(e => e.date.startsWith(monthFilter));
+            }
+            
+            // 按日期倒序排列
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (expenses.length === 0) {
+                container.innerHTML = '<div class="empty-hint">暂无费用记录</div>';
+                updateExpenseStats([]);
+                return;
+            }
+            
+            container.innerHTML = expenses.map(expense => `
+                <div class="expense-card compact">
+                    <div class="expense-header">
+                        <span class="expense-type ${expense.type}">${getTypeName(expense.type)}</span>
+                        <span class="expense-amount">-¥${expense.amount.toFixed(2)}</span>
+                    </div>
+                    <div class="expense-date">${expense.date}</div>
+                    ${expense.note ? `<div class="expense-note">${expense.note}</div>` : ''}
+                    ${expense.beads && expense.beads.length > 0 ? `
+                        <div class="expense-bead-summary">
+                            <span>🎨 关联拼豆：</span>
+                            ${expense.beads.map(b => `<span class="bead-tag" style="background-color: ${b.color};">${b.code} ${b.amount}g</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="expense-actions">
+                        <button onclick="deleteExpense('${expense.id}')" class="btn btn-sm btn-danger">删除</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            updateExpenseStats(expenses);
+        }
+        
+        // 更新费用统计
+        function updateExpenseStats(expenses) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+            
+            const allExpenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+            const orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+            
+            const todayExpenses = allExpenses.filter(e => e.date === today);
+            const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonth));
+            
+            const todayIncome = orders.filter(o => o.date === today).reduce((sum, o) => sum + o.actualPayment, 0);
+            const totalIncome = orders.reduce((sum, o) => sum + o.actualPayment, 0);
+            
+            const todayExpense = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const monthExpense = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const totalExpense = allExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const netProfit = totalIncome - totalExpense;
+            
+            document.getElementById('todayExpense').textContent = `¥${todayExpense.toFixed(2)}`;
+            document.getElementById('monthExpense').textContent = `¥${monthExpense.toFixed(2)}`;
+            document.getElementById('totalExpense').textContent = `¥${totalExpense.toFixed(2)}`;
+            
+            const profitEl = document.getElementById('netProfit');
+            profitEl.textContent = `¥${netProfit.toFixed(2)}`;
+            profitEl.className = 'stat-value ' + (netProfit >= 0 ? 'profit' : 'loss');
+        }
+        
+        // 打开添加费用弹窗
+        function openAddExpenseModal() {
+            document.getElementById('expenseType').value = 'other';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('expenseNote').value = '';
+            currentExpenseBeads = [];
+            updateExpenseBeadList();
+            document.getElementById('addExpenseModal').style.display = 'flex';
+        }
+        
+        // 关闭添加费用弹窗
+        function closeAddExpenseModal() {
+            document.getElementById('addExpenseModal').style.display = 'none';
+            currentExpenseBeads = [];
+        }
+        
+        // 确认添加费用
+        function confirmAddExpense() {
+            const type = document.getElementById('expenseType').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const date = document.getElementById('expenseDate').value;
+            const note = document.getElementById('expenseNote').value;
+            
+            if (amount <= 0) {
+                alert('请输入有效的金额！');
+                return;
+            }
+            
+            if (!date) {
+                alert('请选择选择日期！');
+                return;
+            }
+            
+            // 处理拼豆库存更新（仅进货类型）
+            if (type === 'purchase' && currentExpenseBeads.length > 0) {
+                const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+                
+                currentExpenseBeads.forEach(usage => {
+                    const beadIndex = beads.findIndex(b => b.code === usage.code);
+                    if (beadIndex !== -1) {
+                        beads[beadIndex].stockGram += usage.amount;
+                    }
+                });
+                
+                localStorage.setItem('perlerTimerBeads', JSON.stringify(beads));
+                
+                // 记录库存操作日志
+                const logs = JSON.parse(localStorage.getItem('perlerTimerInventoryLogs')) || [];
+                logs.unshift({
+                    id: Date.now(),
+                    timestamp: new Date().toISOString(),
+                    type: 'in',
+                    colors: currentExpenseBeads.map(u => ({
+                        code: u.code,
+                        name: u.name,
+                        gram: u.amount
+                    })),
+                    note: `进货费用记录`,
+                    expenseId: generateId()
+                });
+                localStorage.setItem('perlerTimerInventoryLogs', JSON.stringify(logs.slice(0, 500)));
+            }
+            
+            const expenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+            expenses.unshift({
+                id: generateId(),
+                type: type,
+                amount: amount,
+                date: date,
+                note: note,
+                beads: currentExpenseBeads,
+                createTime: new Date().toISOString()
+            });
+            
+            localStorage.setItem('perlerTimerExpenses', JSON.stringify(expenses));
+            
+            closeAddExpenseModal();
+            loadExpenses();
+            showNotification('费用已添加');
+        }
+        
+        // 删除费用
+        function deleteExpense(id) {
+            if (confirm('确定要删除这条费用记录吗？')) {
+                const expenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+                const filteredExpenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('perlerTimerExpenses', JSON.stringify(filteredExpenses));
+                
+                loadExpenses();
+                showNotification('费用已删除');
+            }
+        }
+        
+        // 导出费用报表
+        function exportExpenses() {
+            const expenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+            
+            if (expenses.length === 0) {
+                alert('暂无费用记录可导出！');
+                return;
+            }
+            
+            let csv = '日期,类型,金额,备注\n';
+            expenses.forEach(e => {
+                csv += `${e.date},${getTypeName(e.type)},${e.amount},"${e.note || ''}"\n`;
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `费用报表_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('费用报表已导出');
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initExpensePage);
+    </script>
+</body>
+</html>

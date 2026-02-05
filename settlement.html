@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结算统计 - 拼豆计时器 Pro V1.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="拼豆计时器">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <a href="index.html" class="logo">
+                <h2 id="shopNameDisplay">拼豆计时器</h2>
+                <span class="version">V1.0</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="timer.html" class="nav-item">
+                    <span class="icon">⏱️</span>
+                    <span>计时管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="icon">📦</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="expense.html" class="nav-item">
+                    <span class="icon">💰</span>
+                    <span>费用管理</span>
+                </a>
+                <a href="settlement.html" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>结算统计</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="settlement-page">
+                <div class="page-header">
+                    <h1>📊 结算统计</h1>
+                    <div class="header-actions">
+                        <button onclick="exportSettlements()" class="btn btn-secondary">📤 导出报表</button>
+                    </div>
+                </div>
+                
+                <!-- 统计卡片（紧凑版） -->
+                <div class="settlement-stats-compact">
+                    <div class="stat-card compact">
+                        <div class="stat-label">今日订单</div>
+                        <div class="stat-value" id="todayOrders">0</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">今日收入</div>
+                        <div class="stat-value" id="todayIncome">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">今日平台费</div>
+                        <div class="stat-value" id="todayPlatformFee" style="color: #e74c3c;">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">今日实收</div>
+                        <div class="stat-value" id="todayNetIncome" style="color: #27ae60;">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">本月收入</div>
+                        <div class="stat-value" id="monthIncome">¥0.00</div>
+                    </div>
+                    <div class="stat-card compact">
+                        <div class="stat-label">总收入</div>
+                        <div class="stat-value" id="totalIncome">¥0.00</div>
+                    </div>
+                </div>
+                
+                <!-- 筛选区（紧凑版） -->
+                <div class="filter-section-compact">
+                    <div class="filter-group">
+                        <label>日期：</label>
+                        <input type="date" id="settlementDateFilter" class="form-control compact" onchange="loadSettlements()">
+                    </div>
+                    <div class="filter-group">
+                        <label>桌位：</label>
+                        <select id="settlementTableFilter" class="form-control compact" onchange="loadSettlements()">
+                            <option value="all">全部</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 订单列表 -->
+                <div id="settlementList" class="settlement-list-compact"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="bead-data.js"></script>
+    <script src="common.js"></script>
+    <script src="csv-export.js"></script>
+    <script>
+        // 初始化页面
+        function initSettlementPage() {
+            loadConfig();
+            initTables();
+            updateShopNameDisplay();
+            loadSettlements();
+            loadTableFilter();
+        }
+        
+        // 加载桌位筛选
+        function loadTableFilter() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const select = document.getElementById('settlementTableFilter');
+            
+            tables.forEach(table => {
+                const option = document.createElement('option');
+                option.value = table.id;
+                option.textContent = table.name;
+                select.appendChild(option);
+            });
+        }
+        
+        // 加载结算列表
+        function loadSettlements() {
+            const dateFilter = document.getElementById('settlementDateFilter').value;
+            const tableFilter = document.getElementById('settlementTableFilter').value;
+            const container = document.getElementById('settlementList');
+            
+            let orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+            
+            // 按日期筛选
+            if (dateFilter) {
+                orders = orders.filter(o => o.date === dateFilter);
+            }
+            
+            // 按桌位筛选
+            if (tableFilter !== 'all') {
+                orders = orders.filter(o => o.tableId === tableFilter);
+            }
+            
+            // 按时间倒序排列
+            orders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<div class="empty-hint">暂无订单记录</div>';
+                updateSettlementStats([]);
+                return;
+            }
+            
+            container.innerHTML = orders.map(order => {
+                const duration = order.duration;
+                const hours = Math.floor(duration / (1000 * 60 * 60));
+                const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                
+                return `
+                    <div class="order-card compact">
+                        <div class="order-header">
+                            <span class="order-table">${order.tableName}</span>
+                            <span class="order-date">${order.date}</span>
+                        </div>
+                        <div class="order-detail">
+                            <span>时长：</span>
+                            <span>${hours}小时${minutes}分钟</span>
+                        </div>
+                        <div class="order-detail">
+                            <span>计费：</span>
+                            <span>${order.chargeType === 'daily' ? '包日' : '时长'}</span>
+                        </div>
+                        <div class="order-detail">
+                            <span>客户：</span>
+                            <span>${getCustomerTypeName(order.customerType)}</span>
+                        </div>
+                        <div class="order-detail">
+                            <span>原价：</span>
+                            <span>¥${order.originalPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="order-detail">
+                            <span>折扣：</span>
+                            <span>${order.discount > 0 ? (order.discount * 100).toFixed(0) + '%' : '无'}</span>
+                        </div>
+                        ${order.platformFee && order.platformFee > 0 ? `
+                            <div class="order-detail" style="color: #f39c12;">
+                                <span>平台费：</span>
+                                <span>¥${order.platformFee.toFixed(2)} (${(order.platformFeeRate * 100).toFixed(0)}%)</span>
+                            </div>
+                            <div class="order-detail" style="color: #27ae60; font-weight: 600;">
+                                <span>实收：</span>
+                                <span>¥${order.netIncome.toFixed(2)}</span>
+                            </div>
+                        ` : ''}
+                        ${order.beadUsage && order.beadUsage.length > 0 ? `
+                            <div class="order-bead-usage">
+                                <div class="order-bead-usage-header">
+                                    <span>🎨 拼豆使用</span>
+                                    <span class="bead-total">${order.beadUsageTotal || order.beadUsage.reduce((sum, u) => sum + u.amount, 0)}g</span>
+                                </div>
+                                <div class="order-bead-usage-list">
+                                    ${order.beadUsage.map(usage => `
+                                        <div class="order-bead-usage-item">
+                                            <span class="bead-code" style="background-color: ${usage.color};">${usage.code}</span>
+                                            <span class="bead-name">${usage.name}</span>
+                                            <span class="bead-amount">${usage.amount}g</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        <div class="order-total">
+                            <span>应收：</span>
+                            <span class="total-amount">¥${order.calculatedPrice.toFixed(2)}</span>
+                        </div>
+                        <div class="order-total actual">
+                            <span>实收：</span>
+                            <span class="total-amount">¥${order.actualPayment.toFixed(2)}</span>
+                        </div>
+                        ${order.note || order.checkoutNote ? `
+                            <div class="order-notes">
+                                ${order.note ? `<div>备注：${order.note}</div>` : ''}
+                                ${order.checkoutNote ? `<div>结账备注：${order.checkoutNote}</div>` : ''}
+                            </div>
+                        ` : ''}
+                        <div class="order-actions">
+                            <button onclick="deleteOrder('${order.id}')" class="btn btn-sm btn-danger">删除</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateSettlementStats(orders);
+        }
+        
+        // 更新结算统计
+        function updateSettlementStats(filteredOrders) {
+            const today = new Date().toISOString().split('T')[0];
+            const currentMonth = today.substring(0, 7);
+            
+            const allOrders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+            
+            const todayOrders = allOrders.filter(o => o.date === today);
+            const monthOrders = allOrders.filter(o => o.date.startsWith(currentMonth));
+            
+            const todayIncome = todayOrders.reduce((sum, o) => sum + o.actualPayment, 0);
+            const todayPlatformFee = todayOrders.reduce((sum, o) => sum + (o.platformFee || 0), 0);
+            const todayNetIncome = todayOrders.reduce((sum, o) => sum + (o.netIncome || o.actualPayment), 0);
+            const monthIncome = monthOrders.reduce((sum, o) => sum + o.actualPayment, 0);
+            const totalIncome = allOrders.reduce((sum, o) => sum + o.actualPayment, 0);
+            
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            document.getElementById('todayIncome').textContent = `¥${todayIncome.toFixed(2)}`;
+            document.getElementById('todayPlatformFee').textContent = `¥${todayPlatformFee.toFixed(2)}`;
+            document.getElementById('todayNetIncome').textContent = `¥${todayNetIncome.toFixed(2)}`;
+            document.getElementById('monthIncome').textContent = `¥${monthIncome.toFixed(2)}`;
+            document.getElementById('totalIncome').textContent = `¥${totalIncome.toFixed(2)}`;
+        }
+        
+        // 删除订单
+        function deleteOrder(id) {
+            if (confirm('确定要删除这条订单吗？')) {
+                const orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+                const filteredOrders = orders.filter(o => o.id !== id);
+                localStorage.setItem('perlerTimerOrders', JSON.stringify(filteredOrders));
+                
+                loadSettlements();
+                showNotification('订单已删除');
+            }
+        }
+        
+        // 导出报表
+        function exportSettlements() {
+            exportOrdersCSV();
+            showNotification('订单报表已导出（CSV格式，Excel可直接打开）');
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initSettlementPage);
+    </script>
+</body>
+</html>

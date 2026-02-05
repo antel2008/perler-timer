@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼豆计时收费系统 Pro V1.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="拼豆计时器">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        .welcome-page {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .welcome-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .welcome-header .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3436;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .today-stats {
+            margin-bottom: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .stat-card.primary::before {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .stat-card.success::before {
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+        }
+        
+        .stat-card.warning::before {
+            background: linear-gradient(90deg, #f093fb, #f5576c);
+        }
+        
+        .stat-card.info::before {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+        }
+        
+        .stat-card.danger::before {
+            background: linear-gradient(90deg, #eb3349, #f45c43);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            font-size: 13px;
+            color: #636e72;
+        }
+        
+        .quick-access {
+            margin-bottom: 40px;
+        }
+        
+        .access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .access-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .access-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: #667eea;
+        }
+        
+        .access-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .access-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+        
+        .access-card p {
+            font-size: 14px;
+            color: #636e72;
+            margin: 0;
+        }
+        
+        .table-status-overview {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .table-overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .table-stat {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .table-stat:hover {
+            background: #e9ecef;
+            transform: scale(1.02);
+        }
+        
+        .table-stat-icon {
+            font-size: 40px;
+        }
+        
+        .table-stat-label {
+            font-size: 14px;
+            color: #636e72;
+            margin-bottom: 5px;
+        }
+        
+        .table-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d3436;
+        }
+        
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .server-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        
+        .info-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .info-value {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-name {
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 3px;
+        }
+        
+        .user-role {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .login-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        
+        .login-content {
+            background: white;
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .login-header h2 {
+            font-size: 28px;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #636e72;
+            font-size: 14px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2d3436;
+        }
+        
+        .form-group input {
+            padding: 14px 18px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .login-tips {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #dfe6e9;
+        }
+        
+        .login-tips p {
+            color: #636e72;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .welcome-header h1 {
+                font-size: 28px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .access-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-overview-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <div class="logo">
+                <div id="shopLogo">
+                    <span class="logo-icon">🎨</span>
+                </div>
+                <h2 id="shopNameDisplay">拼豆计时器</h2>
+                <span class="version">V1.0</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="timer.html" class="nav-item active">
+                    <span class="icon">⏱️</span>
+                    <span>收费管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="icon">📦</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="revenue-expense.html" class="nav-item">
+                    <span class="icon">💰</span>
+                    <span>收支管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar" id="userAvatar">👤</div>
+                    <div class="user-details">
+                        <div class="user-name" id="userName">用户</div>
+                        <div class="user-role" id="userRole">角色</div>
+                    </div>
+                    <button onclick="handleLogout()" class="logout-btn">退出</button>
+                </div>
+                <div class="server-info">
+                    <span class="info-label">服务器</span>
+                    <span class="info-value" id="serverIP">获取中...</span>
+                </div>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="welcome-page">
+                <div class="welcome-header">
+                    <h1>🎨 欢迎使用拼豆计时收费系统</h1>
+                    <p class="subtitle">V1.0 初始版本 - 简化高效，用户权限，费用分摊</p>
+                </div>
+                
+                <div class="today-stats">
+                    <h2 class="section-title">📊 今日概况</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">📋</div>
+                            <div class="stat-content">
+                                <div class="stat-label">今日订单</div>
+                                <div class="stat-value" id="todayOrders">0</div>
+                                <div class="stat-change">单</div>
+                            </div>
+                        </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                                <div class="stat-label">今日收入</div>
+                                <div class="stat-value" id="todayIncome">¥0.00</div>
+                                <div class="stat-change">营业额</div>
+                            </div>
+                        </div>
+                        <div class="stat-card warning">
+                            <div class="stat-icon">💸</div>
+                            <div class="stat-content">
+                                <div class="stat-label">今日支出</div>
+                                <div class="stat-value" id="todayExpense">¥0.00</div>
+                                <div class="stat-change">成本费用</div>
+                            </div>
+                        </div>
+                        <div class="stat-card info">
+                            <div class="stat-icon">📈</div>
+                            <div class="stat-content">
+                                <div class="stat-label">今日利润</div>
+                                <div class="stat-value" id="todayProfit">¥0.00</div>
+                                <div class="stat-change">净利润</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-access">
+                    <h2 class="section-title">🚀 快捷功能</h2>
+                    <div class="access-grid">
+                        <a href="timer.html" class="access-card">
+                            <div class="access-icon">⏱️</div>
+                            <h3>收费管理</h3>
+                            <p>开始计时、查看桌位状态</p>
+                        </a>
+                        <a href="inventory.html" class="access-card">
+                            <div class="access-icon">📦</div>
+                            <h3>库存管理</h3>
+                            <p>色号库存、批量入库</p>
+                        </a>
+                        <a href="revenue-expense.html" class="access-card">
+                            <div class="access-icon">💰</div>
+                            <h3>收支管理</h3>
+                            <p>收入支出、统计分析</p>
+                        </a>
+                        <a href="settings.html" class="access-card">
+                            <div class="access-icon">⚙️</div>
+                            <h3>系统设置</h3>
+                            <p>价格配置、色号管理</p>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="table-status-overview">
+                    <h2 class="section-title">🪑 桌位状态</h2>
+                    <div class="table-overview-grid">
+                        <div class="table-stat">
+                            <div class="table-stat-icon">✅</div>
+                            <div class="table-stat-info">
+                                <div class="table-stat-label">空闲桌位</div>
+                                <div class="table-stat-value" id="freeTables">0</div>
+                            </div>
+                        </div>
+                        <div class="table-stat">
+                            <div class="table-stat-icon">⏱️</div>
+                            <div class="table-stat-info">
+                                <div class="table-stat-label">使用中</div>
+                                <div class="table-stat-value" id="activeTables">0</div>
+                            </div>
+                        </div>
+                        <div class="table-stat">
+                            <div class="table-stat-icon">⏸️</div>
+                            <div class="table-stat-info">
+                                <div class="table-stat-label">已暂停</div>
+                                <div class="table-stat-value" id="pausedTables">0</div>
+                            </div>
+                        </div>
+                        <div class="table-stat">
+                            <div class="table-stat-icon">📊</div>
+                            <div class="table-stat-info">
+                                <div class="table-stat-label">总桌位数</div>
+                                <div class="table-stat-value" id="totalTables">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div id="loginModal" class="login-modal" style="display: none;">
+        <div class="login-content">
+            <div class="login-header">
+                <h2>🔐 用户登录</h2>
+                <p>请输入您的账号和密码</p>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="loginUsername" placeholder="请输入用户名" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+                </div>
+                <button onclick="handleLogin()" class="login-btn">登录</button>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="bead-data.js"></script>
+    <script src="common.js"></script>
+    <script>
+        function updateSidebarDisplay() {
+            const logo = document.getElementById('shopLogo');
+            const nameDisplay = document.getElementById('shopNameDisplay');
+            
+            if (config.shopIcon) {
+                logo.innerHTML = `<img src="${config.shopIcon}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;">`;
+            }
+            
+            if (config.shopName) {
+                nameDisplay.textContent = config.shopName;
+            }
+        }
+        
+        async function getServerIP() {
+            try {
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                document.getElementById('serverIP').textContent = isLocal ? '本地运行' : window.location.hostname;
+            } catch (e) {
+                document.getElementById('serverIP').textContent = '未知';
+            }
+        }
+        
+        function loadTodayStats() {
+            const today = new Date();
+            const todayStr = today.getFullYear() + '-' + 
+                String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                String(today.getDate()).padStart(2, '0');
+            
+            const orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+            const todayOrders = orders.filter(o => {
+                if (o.date) {
+                    return o.date === todayStr;
+                }
+                if (o.endTime) {
+                    const orderDate = new Date(o.endTime);
+                    const orderDateStr = orderDate.getFullYear() + '-' + 
+                        String(orderDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                        String(orderDate.getDate()).padStart(2, '0');
+                    return orderDateStr === todayStr;
+                }
+                return false;
+            });
+            
+            const expenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+            const todayExpenses = expenses.filter(e => e.date === todayStr);
+            
+            const totalIncome = todayOrders.reduce((sum, o) => sum + (o.actualPayment || 0), 0);
+            const totalExpense = todayExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+            const profit = totalIncome - totalExpense;
+            
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            document.getElementById('todayIncome').textContent = formatMoney(totalIncome);
+            document.getElementById('todayExpense').textContent = formatMoney(totalExpense);
+            
+            const profitEl = document.getElementById('todayProfit');
+            profitEl.textContent = formatMoney(profit);
+            profitEl.parentElement.parentElement.className = 'stat-card ' + (profit >= 0 ? 'success' : 'danger');
+            
+            updateTableStatus();
+        }
+        
+        function updateTableStatus() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            
+            const freeCount = tables.filter(t => t.status === 'free').length;
+            const activeCount = tables.filter(t => t.status === 'in-use').length;
+            const pausedCount = tables.filter(t => t.status === 'in-use' && t.paused).length;
+            
+            document.getElementById('freeTables').textContent = freeCount;
+            document.getElementById('activeTables').textContent = activeCount;
+            document.getElementById('pausedTables').textContent = pausedCount;
+            document.getElementById('totalTables').textContent = tables.length;
+        }
+        
+        function checkLoginStatus() {
+            const isLoggedIn = checkLogin();
+            const loginModal = document.getElementById('loginModal');
+            const userInfo = document.getElementById('userInfo');
+            
+            if (isLoggedIn) {
+                loginModal.style.display = 'none';
+                userInfo.style.display = 'flex';
+                
+                const user = getCurrentUser();
+                if (user) {
+                    document.getElementById('userName').textContent = user.name || user.username;
+                    document.getElementById('userRole').textContent = user.role === 'admin' ? '管理员' : '普通员工';
+                    document.getElementById('userAvatar').textContent = user.role === 'admin' ? '👑' : '👤';
+                }
+            } else {
+                loginModal.style.display = 'flex';
+                userInfo.style.display = 'none';
+            }
+        }
+        
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username) {
+                alert('请输入用户名！');
+                document.getElementById('loginUsername').focus();
+                return;
+            }
+            
+            if (!password) {
+                alert('请输入密码！');
+                document.getElementById('loginPassword').focus();
+                return;
+            }
+            
+            if (username.length < 3) {
+                alert('用户名长度不能少于3个字符！');
+                document.getElementById('loginUsername').focus();
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('密码长度不能少于6个字符！');
+                document.getElementById('loginPassword').focus();
+                return;
+            }
+            
+            const result = login(username, password);
+            
+            if (result.success) {
+                showNotification(`欢迎回来，${result.user.name}！`);
+                checkLoginStatus();
+            } else {
+                alert(result.message || '登录失败，请检查用户名和密码！');
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginPassword').focus();
+            }
+        }
+        
+        function handleLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                logout();
+                showNotification('已退出登录');
+                checkLoginStatus();
+            }
+        }
+        
+        loadConfig();
+        updateSidebarDisplay();
+        initTables();
+        getServerIP();
+        loadTodayStats();
+        checkLoginStatus();
+        
+        setInterval(() => {
+            loadTodayStats();
+        }, 5000);
+        
+        document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>

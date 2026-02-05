@@ -1,0 +1,219 @@
+/* 色号管理样式 */
+.color-actions-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.color-list-mini {
+    margin-top: 15px;
+}
+
+.color-grid-mini {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.color-mini-card {
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.color-mini-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.color-mini-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.color-mini-code {
+    font-weight: 700;
+    color: #2d3436;
+    font-size: 15px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.color-mini-stock {
+    color: #636e72;
+    font-size: 13px;
+    display: block;
+}
+
+.color-mini-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.color-group-section {
+    margin-bottom: 24px;
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.color-group-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3436;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.color-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.color-preview {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.color-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.color-code {
+    font-weight: 700;
+    color: #2d3436;
+    font-size: 15px;
+    display: block;
+}
+
+.color-name {
+    color: #636e72;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+.color-stock {
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.stock-main {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.stock-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.stock-unit {
+    font-size: 14px;
+    color: #636e72;
+}
+
+.color-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-mini {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 6px;
+    background: #667eea;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.btn-mini:hover {
+    background: #764ba2;
+    transform: scale(1.1);
+}
+
+/* 批量入库中的色号选择器分组 */
+.color-selector-group {
+    margin-bottom: 15px;
+}
+
+.color-selector-group .group-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    padding: 5px 0;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.color-selector-group .color-checkbox {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.color-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.color-checkbox:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.color-checkbox input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+.color-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.color-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.color-item span {
+    font-size: 13px;
+    color: var(--text-primary);
+}

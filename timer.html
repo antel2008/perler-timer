@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收费管理 - 拼豆计时器 Pro V1.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="拼豆计时器">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="app">
+        <!-- 侧边导航栏 -->
+        <nav class="sidebar">
+            <a href="index.html" class="logo">
+                <h2 id="shopNameDisplay">🎨 拼豆计时器</h2>
+                <span class="version">V1.0</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="timer.html" class="nav-item active">
+                    <span class="icon">⏱️</span>
+                    <span>收费管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="icon">📦</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="revenue-expense.html" class="nav-item">
+                    <span class="icon">💰</span>
+                    <span>收支管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </nav>
+        
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="timer-page">
+                <div class="page-header">
+                    <h1>⏱️ 收费管理</h1>
+                    <div class="header-actions">
+                        <input type="text" id="tableSearch" placeholder="搜索桌位..." class="search-input">
+                        <button onclick="clearAllTables()" class="btn btn-danger">清空全部</button>
+                    </div>
+                </div>
+                
+                <!-- 快速统计卡片 -->
+                <div class="quick-timer-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">在线桌位</div>
+                        <div class="stat-value" id="activeCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">空闲桌位</div>
+                        <div class="stat-value" id="freeCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">今日订单</div>
+                        <div class="stat-value" id="todayOrderCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">今日收入</div>
+                        <div class="stat-value" id="todayTotal">¥0.00</div>
+                    </div>
+                </div>
+                
+                <!-- 桌位列表 -->
+                <div id="tableList" class="tables-grid"></div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 开始计时弹窗 -->
+    <div id="startModal" class="modal">
+        <div class="modal-content">
+            <h2>开始计时 - <span id="modalTableName"></span></h2>
+            <div class="form-group">
+                <label>计费方式</label>
+                <select id="chargeType" class="form-control" onchange="toggleGroupBuyFields()">
+                    <option value="hourly">按时长计费</option>
+                    <option value="daily">包日计费</option>
+                    <option value="groupbuy">团购套餐（固定价格）</option>
+                </select>
+            </div>
+            <div class="form-group" id="groupBuyPriceGroup" style="display: none;">
+                <label>团购价格（元）</label>
+                <input type="number" id="groupBuyPrice" class="form-control" step="0.01" min="0" placeholder="例如：39.9">
+            </div>
+            <div class="form-group">
+                <label>会员手机号（可选）</label>
+                <input type="tel" id="memberPhone" placeholder="请输入手机号" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <textarea id="startNote" class="form-control" placeholder="备注信息..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeStartModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmStartTimer()" class="btn btn-primary">开始计时</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 结账弹窗 -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <h2>结账 - <span id="checkoutTableName"></span></h2>
+            
+            <div class="form-group">
+                <label>🔗 合并结算其他桌位</label>
+                <div id="mergeTablesList" class="merge-tables-list"></div>
+                <button onclick="openMergeTableModal()" class="btn btn-sm btn-primary" style="margin-top: 10px;">➕ 添加桌位</button>
+            </div>
+            
+            <div class="checkout-info">
+                <div class="info-row">
+                    <span>开始时间：</span>
+                    <span id="checkoutStartTime">-</span>
+                </div>
+                <div class="info-row">
+                    <span>结束时间：</span>
+                    <span id="checkoutEndTime">-</span>
+                </div>
+                <div class="info-row">
+                    <span>使用时长：</span>
+                    <span id="checkoutDuration">-</span>
+                </div>
+                <div class="info-row">
+                    <span>计费方式：</span>
+                    <span id="checkoutChargeType">-</span>
+                </div>
+                <div class="info-row">
+                    <span>客户类型：</span>
+                    <span id="checkoutCustomerType">-</span>
+                </div>
+                <hr>
+                <div class="info-row total">
+                    <span>原价：</span>
+                    <span id="checkoutOriginalPrice">¥0.00</span>
+                </div>
+                <div class="info-row discount">
+                    <span>折扣：</span>
+                    <span id="checkoutDiscount">无</span>
+                </div>
+                <div class="info-row platform-fee" id="platformFeeRow" style="display: none;">
+                    <span>平台费用：</span>
+                    <span id="checkoutPlatformFee">¥0.00</span>
+                </div>
+                <div class="info-row total-final">
+                    <span>应收金额：</span>
+                    <span class="final-price" id="checkoutFinalPrice">¥0.00</span>
+                </div>
+                <div class="info-row net-income" id="netIncomeRow" style="display: none;">
+                    <span>实际到账：</span>
+                    <span class="net-income-value" id="checkoutNetIncome">¥0.00</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>客户类型</label>
+                <select id="checkoutCustomerTypeSelect" class="form-control" onchange="updateCheckoutPrice()">
+                    <option value="normal">普通客户（无折扣）</option>
+                    <option value="member">会员 (9折)</option>
+                    <option value="vip">VIP (8折)</option>
+                    <option value="student">学生 (85折)</option>
+                    <optgroup label="--- 团购平台 ---">
+                        <option value="meituan">美团团购 (扣15%)</option>
+                        <option value="douyin">抖音团购 (扣18%)</option>
+                        <option value="dianping">大众点评 (扣12%)</option>
+                        <option value="xiaohongshu">小红书 (扣10%)</option>
+                        <option value="custom">其他平台 (自定义)</option>
+                    </optgroup>
+                </select>
+            </div>
+                <div class="form-group">
+                    <label>实际收款（元）</label>
+                    <input type="number" id="actualPayment" class="form-control" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                <label>备注</label>
+                <textarea id="checkoutNote" class="form-control" placeholder="备注信息..."></textarea>
+            </div>
+            
+            <hr>
+            
+            <div class="form-group">
+                <label> 其他收费项目</label>
+                <div id="otherChargesList" class="other-charges-list"></div>
+                <button onclick="addOtherChargeItem()" class="btn btn-sm btn-warning" style="margin-top: 10px;">➕ 添加收费项目</button>
+            </div>
+            
+            <div class="modal-actions">
+                <button onclick="closeCheckoutModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmCheckout()" class="btn btn-primary">确认收款</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 其他收费项目弹窗 -->
+    <div id="otherChargeChargesModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>📦 添加收费项目</h2>
+            <div class="form-group">
+                <label>选择收费项目</label>
+                <select id="otherChargeTypeSelect" class="form-control" onchange="onOtherChargeTypeChange()">
+                    <option value="">请选择收费项目...</option>
+                </select>
+            </div>
+            <div class="form-group" id="otherChargePriceGroup" style="display: none;">
+                <label>价格（元）</label>
+                <input type="number" id="otherChargePrice" class="form-control" step="0.01" min="0" placeholder="例如：10.00">
+            </div>
+            <div class="form-group">
+                <label>数量</label>
+                <input type="number" id="otherChargeQuantity" class="form-control" step="1" min="1" value="1" placeholder="数量">
+            </div>
+            <div class="form-group">
+                <label>备注</label>
+                <input type="text" id="otherChargeNote" class="form-control" placeholder="备注信息...">
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeOtherChargeChargesModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmAddOtherChargeItem()" class="btn btn-success">确认添加</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 合并桌位弹窗 -->
+    <div id="mergeTableModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2>🔗 选择要合并的桌位</h2>
+            <div id="mergeTableOptions" class="merge-table-options"></div>
+            <div class="modal-actions">
+                <button onclick="closeMergeTableModal()" class="btn btn-secondary">取消</button>
+                <button onclick="confirmMergeTables()" class="btn btn-success">确认合并</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    <script src="bead-data.js"></script>
+    <script src="common.js"></script>
+    <script>
+        // 当前选中的桌位
+        let selectedTable = null;
+        
+        // 当前其他收费项目记录
+        let currentOtherCharges = [];
+        
+        // 当前合并的桌位
+        let mergedTables = [];
+        
+        // 初始化页面
+        function initTimerPage() {
+            loadConfig();
+            initTables(); // 初始化桌位
+            updateShopNameDisplay();
+            loadTables();
+            updateTimerStats();
+            
+            // 搜索功能
+            document.getElementById('tableSearch').addEventListener('input', function() {
+                loadTables(this.value);
+            });
+        }
+        
+        // 加载桌位列表
+        function loadTables(searchTerm = '') {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const container = document.getElementById('tableList');
+            
+            let filteredTables = tables;
+            if (searchTerm) {
+                filteredTables = tables.filter(table => 
+                    table.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    table.customerPhone?.includes(searchTerm)
+                );
+            }
+            
+            container.innerHTML = filteredTables.map(table => `
+                <div class="table-card ${table.status === 'in-use' ? 'busy' : 'free'}" data-id="${table.id}">
+                    <div class="table-header">
+                        <h3>${table.name}</h3>
+                        <span class="table-status ${table.status}">
+                            ${table.status === 'in-use' ? '使用中' : '空闲'}
+                        </span>
+                    </div>
+                    
+                    ${table.status === 'in-use' ? `
+                        <div class="table-timer">
+                            <div class="timer-display" id="timer-${table.id}">
+                                ${formatDuration(table.startTime)}
+                            </div>
+                            <div class="customer-info">
+                                ${table.chargeType === 'daily' ? '<span class="charge-badge">包日</span>' : ''}
+                                ${table.chargeType === 'groupbuy' ? '<span class="charge-badge" style="background: #f093fb;">团购</span>' : ''}
+                                ${table.customerPhone ? `<span class="phone">${table.customerPhone}</span>` : ''}
+                            </div>
+                            ${table.note ? `<div class="table-note">${table.note}</div>` : ''}
+                        </div>
+                        
+                        <div class="table-cost">
+                            <span>当前费用：</span>
+                            <span class="cost-value" id="cost-${table.id}">¥0.00</span>
+                        </div>
+                        
+                        <div class="table-actions">
+                            <button onclick="pauseResumeTimer('${table.id}')" class="btn ${table.paused ? 'btn-warning' : 'btn-info'}">
+                                ${table.paused ? '▶️ 继续' : '⏸️ 暂停'}
+                            </button>
+                            <button onclick="openCheckoutModal('${table.id}')" class="btn btn-primary">
+                                💵 结账
+                            </button>
+                        </div>
+                    ` : `
+                        <div class="table-empty">
+                            <p>桌位空闲</p>
+                        </div>
+                        <div class="table-actions">
+                            <button onclick="openStartModal('${table.id}')" class="btn btn-success">
+                                ⏱️ 开始计时
+                            </button>
+                        </div>
+                    `}
+                </div>
+            `).join('');
+        }
+        
+        // 切换平台费率显示（V3.0新增）
+        function togglePlatformFee() {
+            const customerType = document.getElementById('customerType').value;
+            const feeDisplay = document.getElementById('platformFeeDisplay');
+            const platformTypes = ['meituan', 'douyin', 'dianping', 'xiaohongshu', 'custom'];
+            
+            if (platformTypes.includes(customerType)) {
+                feeDisplay.style.display = 'block';
+                const feeRate = getPlatformFeeRate(customerType) * 100;
+                const platformName = config.platformFees && config.platformFees[customerType] ? config.platformFees[customerType].name : '';
+                document.querySelector('.fee-rate').textContent = `${feeRate.toFixed(0)}%`;
+                document.querySelector('.fee-desc').textContent = `${platformName}费率，实际到账 = 原价 × (1 - ${feeRate.toFixed(0)}%)`;
+            } else {
+                feeDisplay.style.display = 'none';
+            }
+        }
+        
+        // 打开开始计时弹窗
+        function openStartModal(tableId) {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            selectedTable = tables.find(t => t.id === tableId);
+            
+            if (selectedTable) {
+                document.getElementById('modalTableName').textContent = selectedTable.name;
+                document.getElementById('chargeType').value = 'hourly';
+                document.getElementById('memberPhone').value = '';
+                document.getElementById('startNote').value = '';
+                
+                document.getElementById('startModal').style.display = 'flex';
+            }
+        }
+        
+        function toggleGroupBuyFields() {
+            const chargeType = document.getElementById('chargeType').value;
+            const groupBuyPriceGroup = document.getElementById('groupBuyPriceGroup');
+            groupBuyPriceGroup.style.display = chargeType === 'groupbuy' ? 'block' : 'none';
+        }
+        
+        // 关闭开始计时弹窗
+        function closeStartModal() {
+            document.getElementById('startModal').style.display = 'none';
+            selectedTable = null;
+        }
+        
+        // 确认开始计时
+        function confirmStartTimer() {
+            if (!selectedTable) return;
+            
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const tableIndex = tables.findIndex(t => t.id === selectedTable.id);
+            
+            if (tableIndex !== -1) {
+                const chargeType = document.getElementById('chargeType').value;
+                tables[tableIndex] = {
+                    ...tables[tableIndex],
+                    status: 'in-use',
+                    startTime: Date.now(),
+                    pauseTime: null,
+                    paused: false,
+                    chargeType: chargeType,
+                    groupBuyPrice: chargeType === 'groupbuy' ? parseFloat(document.getElementById('groupBuyPrice').value) : null,
+                    customerType: 'normal',
+                    customerPhone: document.getElementById('memberPhone').value,
+                    note: document.getElementById('startNote').value
+                };
+                
+                localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+                
+                closeStartModal();
+                loadTables();
+                updateTimerStats();
+                
+                // 通知
+                showNotification(`${selectedTable.name} 计时已开始`);
+            }
+        }
+        
+        // 暂停/恢复计时
+        function pauseResumeTimer(tableId) {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const tableIndex = tables.findIndex(t => t.id === tableId);
+            
+            if (tableIndex !== -1) {
+                if (tables[tableIndex].paused) {
+                    // 恢复计时
+                    const pauseDuration = Date.now() - tables[tableIndex].pauseTime;
+                    tables[tableIndex] = {
+                        ...tables[tableIndex],
+                        startTime: tables[tableIndex].startTime + pauseDuration,
+                        paused: false,
+                        pauseTime: null
+                    };
+                } else {
+                    // 暂停计时
+                    tables[tableIndex] = {
+                        ...tables[tableIndex],
+                        paused: true,
+                        pauseTime: Date.now()
+                    };
+                }
+                
+                localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+                loadTables();
+            }
+        }
+        
+        // 打开结账弹窗
+        function openCheckoutModal(tableId) {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            selectedTable = tables.find(t => t.id === tableId);
+            
+            if (selectedTable) {
+                document.getElementById('checkoutTableName').textContent = selectedTable.name;
+                
+                const now = Date.now();
+                const duration = selectedTable.paused ? 
+                    selectedTable.pauseTime - selectedTable.startTime : 
+                    now - selectedTable.startTime;
+                
+                const hours = Math.floor(duration / (1000 * 60 * 60));
+                const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('checkoutStartTime').textContent = 
+                    new Date(selectedTable.startTime).toLocaleString();
+                document.getElementById('checkoutEndTime').textContent = 
+                    new Date(now).toLocaleString();
+                document.getElementById('checkoutDuration').textContent = 
+                    `${hours}小时${minutes}分钟`;
+                document.getElementById('checkoutChargeType').textContent = 
+                    selectedTable.chargeType === 'daily' ? '包日计费' : 
+                    selectedTable.chargeType === 'groupbuy' ? '团购套餐' : '按时长计费';
+                
+                document.getElementById('checkoutCustomerTypeSelect').value = 'normal';
+                
+                updateCheckoutPrice();
+                
+                document.getElementById('checkoutNote').value = '';
+                
+                currentOtherCharges = [];
+                updateOtherChargesList();
+                
+                mergedTables = [];
+                updateMergeTablesList();
+                
+                document.getElementById('checkoutModal').style.display = 'flex';
+            }
+        }
+        
+        // 更新结账价格
+        function updateCheckoutPrice() {
+            const customerType = document.getElementById('checkoutCustomerTypeSelect').value;
+            const discount = getDiscount(customerType);
+            let originalPrice, finalPrice;
+            
+            if (selectedTable.chargeType === 'daily') {
+                originalPrice = config.pricePerDay || 50;
+                finalPrice = originalPrice * (1 - discount);
+            } else if (selectedTable.chargeType === 'groupbuy') {
+                originalPrice = selectedTable.groupBuyPrice || 0;
+                finalPrice = originalPrice;
+            } else {
+                const now = Date.now();
+                const duration = selectedTable.paused ? 
+                    selectedTable.pauseTime - selectedTable.startTime : 
+                    now - selectedTable.startTime;
+                const billableHours = calculateBillableHours(duration);
+                originalPrice = billableHours * (config.pricePerHour || 15);
+                finalPrice = originalPrice * (1 - discount);
+            }
+            
+            // 计算合并桌位的费用
+            let mergedTablesPrice = 0;
+            let mergedTablesDiscountedPrice = 0;
+            mergedTables.forEach(table => {
+                let tablePrice = 0;
+                if (table.chargeType === 'daily') {
+                    tablePrice = config.pricePerDay || 50;
+                    mergedTablesDiscountedPrice += tablePrice * (1 - discount);
+                } else if (table.chargeType === 'groupbuy') {
+                    tablePrice = table.groupBuyPrice || 0;
+                    mergedTablesDiscountedPrice += tablePrice;
+                } else {
+                    const now = Date.now();
+                    const duration = table.paused ? 
+                        table.pauseTime - table.startTime : 
+                        now - table.startTime;
+                    const billableHours = calculateBillableHours(duration);
+                    tablePrice = billableHours * (config.pricePerHour || 15);
+                    mergedTablesDiscountedPrice += tablePrice * (1 - discount);
+                }
+                mergedTablesPrice += tablePrice;
+            });
+            
+            const totalOriginalPrice = originalPrice + mergedTablesPrice;
+            const totalFinalPrice = finalPrice + mergedTablesDiscountedPrice;
+            
+            // 计算平台费用
+            const platformFeeRate = getPlatformFeeRate(customerType);
+            const platformFee = platformFeeRate > 0 ? totalFinalPrice * platformFeeRate : 0;
+            const netIncome = platformFeeRate > 0 ? totalFinalPrice - platformFee : totalFinalPrice;
+            const isPlatform = platformFeeRate > 0;
+            
+            document.getElementById('checkoutCustomerType').textContent = 
+                getCustomerTypeName(customerType);
+            document.getElementById('checkoutOriginalPrice').textContent = 
+                `¥${totalOriginalPrice.toFixed(2)}`;
+            document.getElementById('checkoutDiscount').textContent = 
+                discount > 0 ? `${(discount * 100).toFixed(0)}%` : '无';
+            
+            if (isPlatform) {
+                document.getElementById('platformFeeRow').style.display = 'flex';
+                document.getElementById('checkoutPlatformFee').textContent = `¥${platformFee.toFixed(2)} (${(platformFeeRate * 100).toFixed(0)}%)`;
+                document.getElementById('netIncomeRow').style.display = 'flex';
+                document.getElementById('checkoutNetIncome').textContent = `¥${netIncome.toFixed(2)}`;
+            } else {
+                document.getElementById('platformFeeRow').style.display = 'none';
+                document.getElementById('netIncomeRow').style.display = 'none';
+            }
+            
+            const otherChargesTotal = currentOtherCharges.reduce((sum, item) => sum + item.total, 0);
+            const totalPrice = totalFinalPrice + otherChargesTotal;
+            
+            document.getElementById('checkoutFinalPrice').textContent = 
+                `¥${totalPrice.toFixed(2)}`;
+            document.getElementById('actualPayment').value = totalPrice.toFixed(2);
+        }
+        
+        // 关闭结账弹窗
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            selectedTable = null;
+            currentOtherCharges = [];
+        }
+        
+        // 获取其他收费项目配置
+        function getOtherChargeItems() {
+            return config.otherChargeItems || [];
+        }
+        
+        // 加载其他收费项目选择器
+        function loadOtherChargeTypeSelect() {
+            const items = getOtherChargeItems();
+            const select = document.getElementById('otherChargeTypeSelect');
+            
+            select.innerHTML = '<option value="">请选择收费项目...</option>';
+            items.filter(item => item.enabled).forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = `${item.name} (¥${item.price.toFixed(2)}/${item.unit})`;
+                select.appendChild(option);
+            });
+        }
+        
+        // 其他收费项目类型变化
+        function onOtherChargeTypeChange() {
+            const select = document.getElementById('otherChargeTypeSelect');
+            const priceGroup = document.getElementById('otherChargePriceGroup');
+            const priceInput = document.getElementById('otherChargePrice');
+            
+            if (select.value) {
+                const items = getOtherChargeItems();
+                const item = items.find(i => i.id === parseInt(select.value));
+                
+                if (item && item.price > 0) {
+                    priceInput.value = item.price.toFixed(2);
+                    priceGroup.style.display = 'none';
+                } else {
+                    priceInput.value = '';
+                    priceGroup.style.display = 'block';
+                }
+            } else {
+                priceInput.value = '';
+                priceGroup.style.display = 'none';
+            }
+        }
+        
+        // 打开其他收费项目弹窗
+        function openOtherChargeChargesModal() {
+            loadOtherChargeTypeSelect();
+            document.getElementById('otherChargeTypeSelect').value = '';
+            document.getElementById('otherChargePrice').value = '';
+            document.getElementById('otherChargeQuantity').value = '1';
+            document.getElementById('otherChargeNote').value = '';
+            document.getElementById('otherChargePriceGroup').style.display = 'none';
+            document.getElementById('otherChargeChargesModal').style.display = 'flex';
+        }
+        
+        // 关闭其他收费项目弹窗
+        function closeOtherChargeChargesModal() {
+            document.getElementById('otherChargeChargesModal').style.display = 'none';
+        }
+        
+        // 确认添加其他收费项目
+        function confirmAddOtherChargeItem() {
+            const typeId = document.getElementById('otherChargeTypeSelect').value;
+            const price = parseFloat(document.getElementById('otherChargePrice').value) || 0;
+            const quantity = parseInt(document.getElementById('otherChargeQuantity').value) || 1;
+            const note = document.getElementById('otherChargeNote').value;
+            
+            if (!typeId) {
+                alert('请选择收费项目！');
+                return;
+            }
+            
+            if (price <= 0) {
+                alert('请输入有效的价格！');
+                return;
+            }
+            
+            if (quantity <= 0) {
+                alert('请输入有效的数量！');
+                return;
+            }
+            
+            const items = getOtherChargeItems();
+            const item = items.find(i => i.id === parseInt(typeId));
+            
+            if (!item) {
+                alert('收费项目不存在！');
+                return;
+            }
+            
+            currentOtherCharges.push({
+                typeId: item.id,
+                name: item.name,
+                unit: item.unit,
+                price: price,
+                quantity: quantity,
+                total: price * quantity,
+                note: note
+            });
+            
+            updateOtherChargesList();
+            closeOtherChargeChargesModal();
+        }
+        
+        // 删除其他收费项目
+        function removeOtherChargeItem(index) {
+            currentOtherCharges.splice(index, 1);
+            updateOtherChargesList();
+        }
+        
+        // 更新其他收费项目列表显示
+        function updateOtherChargesList() {
+            const container = document.getElementById('otherChargesList');
+            
+            if (currentOtherCharges.length === 0) {
+                container.innerHTML = '<div class="empty-hint">暂无其他收费项目</div>';
+                return;
+            }
+            
+            container.innerHTML = currentOtherCharges.map((item, index) => `
+                <div class="other-charge-item">
+                    <div class="other-charge-info">
+                        <div class="other-charge-name">${item.name}</div>
+                        <div class="other-charge-detail">¥${item.price.toFixed(2)} × ${item.quantity}${item.unit}</div>
+                        ${item.note ? `<div class="other-charge-note">${item.note}</div>` : ''}
+                    </div>
+                    <div class="other-charge-total">¥${item.total.toFixed(2)}</div>
+                    <button onclick="removeOtherChargeItem(${index})" class="btn btn-sm btn-danger">删除</button>
+                </div>
+            `).join('');
+        }
+        
+       
+        
+        // 添加其他收费项目（按钮调用）
+        function addOtherChargeItem() {
+            openOtherChargeChargesModal();
+        }
+        
+        // 打开合并桌位弹窗
+        function openMergeTableModal() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const inUseTables = tables.filter(t => t.status === 'in-use' && t.id !== selectedTable.id);
+            
+            const container = document.getElementById('mergeTableOptions');
+            
+            if (inUseTables.length === 0) {
+                container.innerHTML = '<div class="empty-hint">没有其他正在使用的桌位</div>';
+            } else {
+                container.innerHTML = inUseTables.map(table => `
+                    <label class="merge-table-option">
+                        <input type="checkbox" value="${table.id}" 
+                            ${mergedTables.some(m => m.id === table.id) ? 'checked' : ''}>
+                        <span class="table-name">${table.name}</span>
+                        <span class="table-time">${formatDuration(Date.now() - table.startTime)}</span>
+                    </label>
+                `).join('');
+            }
+            
+            document.getElementById('mergeTableModal').style.display = 'flex';
+        }
+        
+        // 关闭合并桌位弹窗
+        function closeMergeTableModal() {
+            document.getElementById('mergeTableModal').style.display = 'none';
+        }
+        
+        // 确认合并桌位
+        function confirmMergeTables() {
+            const checkboxes = document.querySelectorAll('#mergeTableOptions input[type="checkbox"]');
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            
+            mergedTables = [];
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const table = tables.find(t => t.id === checkbox.value);
+                    if (table) {
+                        mergedTables.push(table);
+                    }
+                }
+            });
+            
+            updateMergeTablesList();
+            updateCheckoutPrice();
+            closeMergeTableModal();
+        }
+        
+        // 移除合并的桌位
+        function removeMergedTable(tableId) {
+            mergedTables = mergedTables.filter(t => t.id !== tableId);
+            updateMergeTablesList();
+            updateCheckoutPrice();
+        }
+        
+        // 更新合并桌位列表显示
+        function updateMergeTablesList() {
+            const container = document.getElementById('mergeTablesList');
+            
+            if (mergedTables.length === 0) {
+                container.innerHTML = '<div class="empty-hint">暂无合并桌位</div>';
+                return;
+            }
+            
+            container.innerHTML = mergedTables.map(table => `
+                <div class="merge-table-item">
+                    <div class="merge-table-info">
+                        <div class="merge-table-name">${table.name}</div>
+                        <div class="merge-table-time">${formatDuration(Date.now() - table.startTime)}</div>
+                    </div>
+                    <button onclick="removeMergedTable('${table.id}')" class="btn btn-sm btn-danger">移除</button>
+                </div>
+            `).join('');
+        }
+        
+        // 格式化时长
+        function formatDuration(ms) {
+            const hours = Math.floor(ms / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}小时${minutes}分钟`;
+        }
+        
+        // 确认结账
+        function confirmCheckout() {
+            if (!selectedTable) return;
+            
+            const actualPayment = parseFloat(document.getElementById('actualPayment').value) || 0;
+            const note = document.getElementById('checkoutNote').value;
+            
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const tableIndex = tables.findIndex(t => t.id === selectedTable.id);
+            
+            if (tableIndex !== -1) {
+                const endTime = Date.now();
+                const duration = tables[tableIndex].paused ? 
+                    tables[tableIndex].pauseTime - tables[tableIndex].startTime : 
+                    endTime - tables[tableIndex].startTime;
+                
+                const discount = getDiscount(tables[tableIndex].customerType);
+                let originalPrice, calculatedPrice;
+                
+                if (tables[tableIndex].chargeType === 'daily') {
+                    originalPrice = config.pricePerDay || 50;
+                    calculatedPrice = originalPrice * (1 - discount);
+                } else if (tables[tableIndex].chargeType === 'groupbuy') {
+                    originalPrice = tables[tableIndex].groupBuyPrice || 0;
+                    calculatedPrice = originalPrice;
+                } else {
+                    const hoursUsed = duration / (1000 * 60 * 60);
+                    originalPrice = hoursUsed * (config.pricePerHour || 15);
+                    calculatedPrice = originalPrice * (1 - discount);
+                }
+                
+                // 计算合并桌位的费用
+                let mergedTablesPrice = 0;
+                let mergedTablesDiscountedPrice = 0;
+                mergedTables.forEach(table => {
+                    let tablePrice = 0;
+                    if (table.chargeType === 'daily') {
+                        tablePrice = config.pricePerDay || 50;
+                        mergedTablesDiscountedPrice += tablePrice * (1 - discount);
+                    } else if (table.chargeType === 'groupbuy') {
+                        tablePrice = table.groupBuyPrice || 0;
+                        mergedTablesDiscountedPrice += tablePrice;
+                    } else {
+                        const now = Date.now();
+                        const tableDuration = table.paused ? 
+                            table.pauseTime - table.startTime : 
+                            now - table.startTime;
+                        const billableHours = calculateBillableHours(tableDuration);
+                        tablePrice = billableHours * (config.pricePerHour || 15);
+                        mergedTablesDiscountedPrice += tablePrice * (1 - discount);
+                    }
+                    mergedTablesPrice += tablePrice;
+                });
+                
+                const totalOriginalPrice = originalPrice + mergedTablesPrice;
+                const totalCalculatedPrice = calculatedPrice + mergedTablesDiscountedPrice;
+                
+                // 计算其他收费项目
+                const otherChargesTotal = currentOtherCharges.reduce((sum, item) => sum + item.total, 0);
+                
+                const finalCalculatedPrice = totalCalculatedPrice + otherChargesTotal;
+                
+                // 计算平台费用（V3.0新增）
+                const platformFeeRate = getPlatformFeeRate(tables[tableIndex].customerType);
+                const platformFee = platformFeeRate > 0 ? finalCalculatedPrice * platformFeeRate : 0;
+                const netIncome = platformFeeRate > 0 ? finalCalculatedPrice - platformFee : finalCalculatedPrice;
+                
+                // 创建订单记录
+                const orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+                const order = {
+                    id: generateId(),
+                    tableId: selectedTable.id,
+                    tableName: selectedTable.name,
+                    startTime: tables[tableIndex].startTime,
+                    endTime: endTime,
+                    duration: duration,
+                    chargeType: tables[tableIndex].chargeType || 'hourly',
+                    customerType: tables[tableIndex].customerType,
+                    customerPhone: tables[tableIndex].customerPhone,
+                    note: tables[tableIndex].note,
+                    originalPrice: totalOriginalPrice,
+                    discount: discount,
+                    calculatedPrice: totalCalculatedPrice,
+                    // V3.0新增平台费用字段
+                    platformFeeRate: platformFeeRate,
+                    platformFee: platformFee,
+                    netIncome: netIncome,
+                    actualPayment: actualPayment,
+                    checkoutNote: note,
+                    // 其他收费项目记录
+                    otherCharges: currentOtherCharges,
+                    otherChargesTotal: otherChargesTotal,
+                    // 合并桌位信息
+                    mergedTables: mergedTables.map(t => ({ id: t.id, name: t.name })),
+                    date: new Date().toISOString().split('T')[0],
+                    createTime: new Date().toISOString()
+                };
+                
+                orders.push(order);
+                localStorage.setItem('perlerTimerOrders', JSON.stringify(orders));
+                
+                // 清空合并的桌位
+                mergedTables.forEach(mergedTable => {
+                    const mergedIndex = tables.findIndex(t => t.id === mergedTable.id);
+                    if (mergedIndex !== -1) {
+                        tables[mergedIndex] = {
+                            ...tables[mergedIndex],
+                            status: 'free',
+                            startTime: null,
+                            pauseTime: null,
+                            paused: false,
+                            chargeType: null,
+                            customerType: null,
+                            customerPhone: null,
+                            note: null
+                        };
+                    }
+                });
+                
+                // 清空主桌位
+                tables[tableIndex] = {
+                    ...tables[tableIndex],
+                    status: 'free',
+                    startTime: null,
+                    pauseTime: null,
+                    paused: false,
+                    chargeType: null,
+                    customerType: null,
+                    customerPhone: null,
+                    note: null
+                };
+                
+                localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+                
+                closeCheckoutModal();
+                loadTables();
+                updateTimerStats();
+                
+                // 通知
+                const notificationText = platformFeeRate > 0 ? 
+                    `${selectedTable.name} 结账成功，应收 ¥${actualPayment.toFixed(2)}，实际到账 ¥${netIncome.toFixed(2)}` :
+                    `${selectedTable.name} 结账成功，收款 ¥${actualPayment.toFixed(2)}`;
+                showNotification(notificationText);
+            }
+        }
+        
+        // 清空所有桌位
+        function clearAllTables() {
+            if (confirm('确定要清空所有桌位吗？所有计时记录将丢失！')) {
+                const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+                tables.forEach(table => {
+                    table.status = 'free';
+                    table.startTime = null;
+                    table.pauseTime = null;
+                    table.paused = false;
+                    table.chargeType = null;
+                    table.customerType = null;
+                    table.customerPhone = null;
+                    table.note = null;
+                });
+                
+                localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+                loadTables();
+                updateTimerStats();
+            }
+        }
+        
+        // 更新计时统计
+        function updateTimerStats() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const today = new Date().toISOString().split('T')[0];
+            const orders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+            
+            const todayOrders = orders.filter(o => o.date === today);
+            const activeCount = tables.filter(t => t.status === 'in-use').length;
+            
+            document.getElementById('activeCount').textContent = activeCount;
+            document.getElementById('freeCount').textContent = tables.length - activeCount;
+            document.getElementById('todayOrderCount').textContent = todayOrders.length;
+            document.getElementById('todayTotal').textContent = 
+                `¥${todayOrders.reduce((sum, o) => sum + o.actualPayment, 0).toFixed(2)}`;
+        }
+        
+        // 更新所有桌位的计时显示
+        function updateAllTimers() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            
+            tables.filter(t => t.status === 'in-use').forEach(table => {
+                const timerEl = document.getElementById(`timer-${table.id}`);
+                const costEl = document.getElementById(`cost-${table.id}`);
+                
+                if (timerEl && costEl) {
+                    const now = Date.now();
+                    const duration = table.paused ? 
+                        table.pauseTime - table.startTime : 
+                        now - table.startTime;
+                    
+                    timerEl.textContent = formatDuration(duration);
+                    
+                    if (table.chargeType === 'daily') {
+                        const discount = getDiscount(table.customerType);
+                        const dailyPrice = (config.pricePerDay || 50) * (1 - discount);
+                        costEl.textContent = `¥${dailyPrice.toFixed(2)}`;
+                    } else if (table.chargeType === 'groupbuy') {
+                        const groupBuyPrice = table.groupBuyPrice || 0;
+                        costEl.textContent = `¥${groupBuyPrice.toFixed(2)}`;
+                    } else {
+                        const discount = getDiscount(table.customerType);
+                        const billableHours = calculateBillableHours(duration);
+                        const pricePerHour = config.pricePerHour || 15;
+                        const cost = billableHours * pricePerHour * (1 - discount);
+                        costEl.textContent = `¥${cost.toFixed(2)}`;
+                    }
+                }
+            });
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initTimerPage);
+        
+        // 每秒更新计时
+        setInterval(updateAllTimers, 1000);
+    </script>
+</body>
+</html>

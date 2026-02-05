@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 拼豆计时器 Pro V1.0</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="color-styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="拼豆计时器">
+    <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <a href="index.html" class="logo">
+                <h2 id="shopNameDisplay">拼豆计时器</h2>
+                <span class="version">V1.0</span>
+            </a>
+            
+            <div class="nav-menu">
+                <a href="timer.html" class="nav-item">
+                    <span class="icon">⏱️</span>
+                    <span>收费管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="icon">📦</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="revenue-expense.html" class="nav-item">
+                    <span class="icon">💰</span>
+                    <span>收支管理</span>
+                </a>
+                <a href="settings.html" class="nav-item active">
+                    <span class="icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <div class="settings-page">
+                <div class="page-header">
+                    <h1>⚙️ 系统设置</h1>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>🏪 店铺信息</h2>
+                    <div class="form-group">
+                        <label>店铺名称</label>
+                        <input type="text" id="shopName" class="form-control" placeholder="请输入店铺名称" onchange="autoSaveSetting('shopName', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>联系电话</label>
+                        <input type="tel" id="shopPhone" class="form-control" placeholder="请输入联系电话" onchange="autoSaveSetting('shopPhone', this.value)">
+                    </div>
+                    <div class="form-group">
+                        <label>店铺地址</label>
+                        <textarea id="shopAddress" class="form-control" placeholder="请输入店铺地址" onchange="autoSaveSetting('shopAddress', this.value)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>店铺图标</label>
+                        <div class="icon-upload-area">
+                            <div class="icon-preview">
+                                <span class="placeholder" id="iconPlaceholder">🎨</span>
+                                <img id="iconPreview" style="display: none;">
+                            </div>
+                            <div class="icon-actions">
+                                <input type="file" id="iconFile" accept="image/*" style="display: none;" onchange="handleIconUpload(event)">
+                                <button onclick="document.getElementById('iconFile').click()" class="btn btn-primary">上传图标</button>
+                                <input type="text" id="iconUrl" class="form-control" placeholder="或输入图片URL" onchange="loadIconFromUrl()">
+                                <button onclick="clearIcon()" class="btn btn-danger">删除图标</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>💵 计费设置</h2>
+                    <div class="form-group">
+                        <label>按小时收费（元）</label>
+                        <input type="number" id="pricePerHour" class="form-control" step="0.01" min="0" onchange="autoSaveSetting('pricePerHour', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>包日价格（元）</label>
+                        <input type="number" id="pricePerDay" class="form-control" step="0.01" min="0" onchange="autoSaveSetting('pricePerDay', parseFloat(this.value))">
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>🏷️ 折扣设置</h2>
+                    <div class="form-group">
+                        <label>会员折扣（%）</label>
+                        <input type="number" id="memberDiscount" class="form-control" step="1" min="0" max="100" onchange="autoSaveSetting('memberDiscount', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>VIP折扣（%）</label>
+                        <input type="number" id="vipDiscount" class="form-control" step="1" min="0" max="100" onchange="autoSaveSetting('vipDiscount', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>学生折扣（%）</label>
+                        <input type="number" id="studentDiscount" class="form-control" step="1" min="0" max="100" onchange="autoSaveSetting('studentDiscount', parseFloat(this.value))">
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>📱 平台费率设置</h2>
+                    <div class="form-group">
+                        <label>美团费率（%）</label>
+                        <input type="number" id="meituanFeeRate" class="form-control" step="0.1" min="0" max="100" onchange="autoSavePlatformFee('meituan', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>抖音费率（%）</label>
+                        <input type="number" id="douyinFeeRate" class="form-control" step="0.1" min="0" max="100" onchange="autoSavePlatformFee('douyin', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>大众点评费率（%）</label>
+                        <input type="number" id="dianpingFeeRate" class="form-control" step="0.1" min="0" max="100" onchange="autoSavePlatformFee('dianping', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>小红书费率（%）</label>
+                        <input type="number" id="xiaohongshuFeeRate" class="form-control" step="0.1" min="0" max="100" onchange="autoSavePlatformFee('xiaohongshu', parseFloat(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>其他平台费率（%）</label>
+                        <input type="number" id="customFeeRate" class="form-control" step="0.1" min="0" max="100" onchange="autoSavePlatformFee('custom', parseFloat(this.value))">
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>📋 桌位管理</h2>
+                    <div class="form-group">
+                        <label>当前桌位数：<span id="currentTableCount">0</span></label>
+                        <div class="table-actions-row">
+                            <button onclick="addOneTable()" class="btn btn-success">➕ 添加1个桌位</button>
+                            <button onclick="deleteFreeTables()" class="btn btn-danger">➖ 删除空闲桌位</button>
+                            <button onclick="regenerateTables()" class="btn btn-warning">🔄 重新生成</button>
+                        </div>
+                    </div>
+                    <div class="table-list-mini">
+                        <div id="tableGrid" class="table-grid-three-columns"></div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>📦 库存设置</h2>
+                    <div class="form-group">
+                        <label>低库存阈值（克）</label>
+                        <input type="number" id="lowStockThreshold" class="form-control" step="10" min="0" onchange="autoSaveInventoryConfig('lowStockThreshold', parseInt(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>快捷增加量（克）</label>
+                        <input type="number" id="inventoryQuickIncreaseAmount" class="form-control" step="10" min="1" onchange="autoSaveInventoryConfig('quickIncreaseAmount', parseInt(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>快捷减少量（克）</label>
+                        <input type="number" id="inventoryQuickDecreaseAmount" class="form-control" step="5" min="1" onchange="autoSaveInventoryConfig('quickDecreaseAmount', parseInt(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>统计天数</label>
+                        <input type="number" id="inventoryStatsDays" class="form-control" min="1" max="30" onchange="autoSaveInventoryConfig('statsDays', parseInt(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>TOP N 消耗排行</label>
+                        <input type="number" id="inventoryTopNConsumption" class="form-control" min="1" max="50" onchange="autoSaveInventoryConfig('topNConsumption', parseInt(this.value))">
+                    </div>
+                    <div class="form-group">
+                        <label>自动备份</label>
+                        <select id="inventoryAutoBackup" class="form-control" onchange="autoSaveInventoryConfig('autoBackup', this.value === 'true')">
+                            <option value="true">开启</option>
+                            <option value="false">关闭</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>备份间隔（小时）</label>
+                        <input type="number" id="inventoryBackupInterval" class="form-control" min="1" max="168" onchange="autoSaveInventoryConfig('backupInterval', parseInt(this.value))">
+                    </div>
+                </div>
+                
+                <!-- V3.2新增：其他收费项目配置 -->
+                <div class="settings-section">
+                    <h2>💳 其他收费项目配置</h2>
+                    <div class="form-group">
+                        <label>收费项目列表</label>
+                        <div id="otherChargeItemsList" class="other-charge-items-list">
+                            <!-- 动态加载收费项目 -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>添加收费项目</label>
+                        <div style="display: grid; grid-template-columns: 1fr 100px 80px auto; gap: 10px;">
+                            <input type="text" id="newChargeItemName" class="form-control" placeholder="项目名称">
+                            <input type="number" id="newChargeItemPrice" class="form-control" placeholder="价格" step="0.01" min="0">
+                            <input type="text" id="newChargeItemUnit" class="form-control" placeholder="单位">
+                            <button onclick="addOtherChargeItem()" class="btn btn-primary">添加</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- V3.1新增：用户管理 -->
+                <div class="settings-section">
+                    <h2>👥 用户管理</h2>
+                    <div class="form-group">
+                        <label>用户列表</label>
+                        <div id="userList" class="user-list">
+                            <!-- 动态加载用户 -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>添加用户</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px;">
+                            <input type="text" id="newUsername" class="form-control" placeholder="用户名">
+                            <input type="text" id="newPassword" class="form-control" placeholder="密码">
+                            <input type="text" id="newUserName" class="form-control" placeholder="姓名">
+                            <select id="newUserRole" class="form-control">
+                                <option value="user">普通用户</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                            <button onclick="addUser()" class="btn btn-primary">添加</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- V3.1新增：费用分摊 -->
+                <div class="settings-section">
+                    <h2>💰 费用分摊设置</h2>
+                    <div class="form-group">
+                        <label>启用费用分摊</label>
+                        <select id="costSharingEnabled" class="form-control" onchange="toggleCostSharing()">
+                            <option value="false">不启用</option>
+                            <option value="true">启用</option>
+                        </select>
+                    </div>
+                    <div id="costSharingConfig" style="display: none;">
+                        <div class="form-group">
+                            <label>分摊范围</label>
+                            <select id="sharingScope" class="form-control">
+                                <option value="revenue">按收入分摊</option>
+                                <option value="profit">按利润分摊（收入-支出）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>合伙人列表</label>
+                            <div id="partnerList" class="partner-list">
+                                <!-- 动态加载合伙人 -->
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>添加合伙人</label>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px;">
+                                <input type="text" id="newPartnerName" class="form-control" placeholder="合伙人名称">
+                                <input type="number" id="newPartnerRatio" class="form-control" placeholder="比例%" step="1" min="0" max="100">
+                                <label style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" id="newPartnerEnabled" checked>
+                                    启用
+                                </label>
+                                <button onclick="addPartner()" class="btn btn-primary">添加</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>💾 数据管理</h2>
+                    <div class="form-group">
+                        <label>导出配置</label>
+                        <button onclick="exportConfig()" class="btn btn-secondary">📤 导出配置</button>
+                    </div>
+                    <div class="form-group">
+                        <label>导入配置</label>
+                        <input type="file" id="configFile" accept=".json" style="display: none;" onchange="importConfig(event)">
+                        <button onclick="document.getElementById('configFile').click()" class="btn btn-secondary">📥 导入配置</button>
+                    </div>
+                    <div class="form-group">
+                        <label>危险操作</label>
+                        <button onclick="clearAllData()" class="btn btn-danger">🗑️ 清空所有数据</button>
+                    </div>
+                </div>
+                
+                <div class="settings-actions">
+                    <button onclick="saveSettings()" class="btn btn-primary btn-large">💾 保存设置</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 色号编辑弹窗 -->
+    <div id="colorModal" class="modal">
+        <div class="modal-content enhanced" style="max-width: 600px;">
+            <h2 id="colorModalTitle">➕ 添加色号</h2>
+            <div class="form-group">
+                <label>色号</label>
+                <input type="text" id="colorCode" class="form-control enhanced" placeholder="例如：A1" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label>分组</label>
+                <select id="colorGroup" class="form-control">
+                    <option value="A">A组 - 黄色系列</option>
+                    <option value="B">B组 - 绿色系列</option>
+                    <option value="C">C组 - 蓝色系列</option>
+                    <option value="D">D组 - 紫色系列</option>
+                    <option value="E">E组 - 粉色系列</option>
+                    <option value="F">F组 - 红色系列</option>
+                    <option value="G">G组 - 棕色系列</option>
+                    <option value="H">H组 - 黑色系列</option>
+                    <option value="M">M组 - 低饱和色</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeColorModal()" class="btn btn-secondary">取消</button>
+                <button onclick="saveColor()" class="btn btn-primary">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="bead-data.js"></script>
+    <script src="common.js"></script>
+    <script>
+        let editingColorCode = null;
+        let currentColorImage = null;
+        
+        // 初始化页面
+        function initSettingsPage() {
+            loadConfig();
+            updateShopNameDisplay();
+            loadSettings();
+            loadTableList();
+            loadColorList();
+            loadColorGroupList();
+            updateIconDisplay();
+            // V3.1新增：加载用户管理和费用分摊
+            loadUserList();
+            loadPartnerList();
+            toggleCostSharing();
+            // V3.2新增：加载其他收费项目
+            loadOtherChargeItemsList();
+            // 加载库存配置
+            loadInventorySettings();
+        }
+        
+        // 加载库存配置
+        function loadInventorySettings() {
+            if (!config.inventoryConfig) {
+                config.inventoryConfig = {
+                    quickIncreaseAmount: 100,
+                    quickDecreaseAmount: 15,
+                    statsDays: 7,
+                    topNConsumption: 10,
+                    autoBackup: true,
+                    backupInterval: 24,
+                    lowStockThreshold: 50
+                };
+            }
+
+            document.getElementById('lowStockThreshold').value = config.inventoryConfig.lowStockThreshold || 50;
+            document.getElementById('inventoryQuickIncreaseAmount').value = config.inventoryConfig.quickIncreaseAmount || 100;
+            document.getElementById('inventoryQuickDecreaseAmount').value = config.inventoryConfig.quickDecreaseAmount || 15;
+            document.getElementById('inventoryStatsDays').value = config.inventoryConfig.statsDays || 7;
+            document.getElementById('inventoryTopNConsumption').value = config.inventoryConfig.topNConsumption || 10;
+            document.getElementById('inventoryAutoBackup').value = config.inventoryConfig.autoBackup ? 'true' : 'false';
+            document.getElementById('inventoryBackupInterval').value = config.inventoryConfig.backupInterval || 24;
+        }
+        
+        // 自动保存库存配置
+        function autoSaveInventoryConfig(key, value) {
+            if (!config.inventoryConfig) {
+                config.inventoryConfig = {};
+            }
+            config.inventoryConfig[key] = value;
+            saveConfig();
+            showNotification('设置已保存');
+        }
+        
+        // 加载设置
+        function loadSettings() {
+            document.getElementById('shopName').value = config.shopName || '';
+            document.getElementById('shopPhone').value = config.shopPhone || '';
+            document.getElementById('shopAddress').value = config.shopAddress || '';
+            document.getElementById('pricePerHour').value = config.pricePerHour || 15;
+            document.getElementById('pricePerDay').value = config.pricePerDay || 50;
+            document.getElementById('memberDiscount').value = config.memberDiscount || 10;
+            document.getElementById('vipDiscount').value = config.vipDiscount || 20;
+            document.getElementById('studentDiscount').value = config.studentDiscount || 15;
+            // 加载库存配置（V3.2新增）
+            if (config.inventoryConfig) {
+                document.getElementById('lowStockThreshold').value = config.inventoryConfig.lowStockThreshold || 250;
+                document.getElementById('inventoryQuickIncreaseAmount').value = config.inventoryConfig.quickIncreaseAmount || 100;
+                document.getElementById('inventoryQuickDecreaseAmount').value = config.inventoryConfig.quickDecreaseAmount || 15;
+                document.getElementById('inventoryStatsDays').value = config.inventoryConfig.statsDays || 7;
+                document.getElementById('inventoryTopNConsumption').value = config.inventoryConfig.topNConsumption || 10;
+                document.getElementById('inventoryAutoBackup').value = config.inventoryConfig.autoBackup ? 'true' : 'false';
+                document.getElementById('inventoryBackupInterval').value = config.inventoryConfig.backupInterval || 24;
+            } else {
+                document.getElementById('lowStockThreshold').value = 250;
+                document.getElementById('inventoryQuickIncreaseAmount').value = 100;
+                document.getElementById('inventoryQuickDecreaseAmount').value = 15;
+                document.getElementById('inventoryStatsDays').value = 7;
+                document.getElementById('inventoryTopNConsumption').value = 10;
+                document.getElementById('inventoryAutoBackup').value = 'true';
+                document.getElementById('inventoryBackupInterval').value = 24;
+            }
+            
+            // 加载平台费率（V3.0新增）
+            if (config.platformFees) {
+                document.getElementById('meituanFeeRate').value = config.platformFees.meituan?.feeRate || 15;
+                document.getElementById('douyinFeeRate').value = config.platformFees.douyin?.feeRate || 18;
+                document.getElementById('dianpingFeeRate').value = config.platformFees.dianping?.feeRate || 12;
+                document.getElementById('xiaohongshuFeeRate').value = config.platformFees.xiaohongshu?.feeRate || 10;
+                document.getElementById('customFeeRate').value = config.platformFees.custom?.feeRate || 0;
+            } else {
+                document.getElementById('meituanFeeRate').value = 15;
+                document.getElementById('douyinFeeRate').value = 18;
+                document.getElementById('dianpingFeeRate').value = 12;
+                document.getElementById('xiaohongshuFeeRate').value = 10;
+                document.getElementById('customFeeRate').value = 0;
+            }
+        }
+        
+        // 自动保存设置
+        function autoSaveSetting(key, value) {
+            config[key] = value;
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            updateShopNameDisplay();
+            showNotification('设置已自动保存');
+        }
+        
+        // 自动保存平台费率
+        function autoSavePlatformFee(platform, value) {
+            if (!config.platformFees) {
+                config.platformFees = {
+                    meituan: { name: '美团', feeRate: 15, enabled: true },
+                    douyin: { name: '抖音', feeRate: 18, enabled: true },
+                    dianping: { name: '大众点评', feeRate: 12, enabled: true },
+                    xiaohongshu: { name: '小红书', feeRate: 10, enabled: true },
+                    custom: { name: '其他平台', feeRate: 0, enabled: false }
+                };
+            }
+            config.platformFees[platform].feeRate = value;
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            showNotification('平台费率已自动保存');
+        }
+        
+        // 自动保存库存配置
+        function autoSaveInventoryConfig(key, value) {
+            if (!config.inventoryConfig) {
+                config.inventoryConfig = {
+                    quickIncreaseAmount: 100,
+                    quickDecreaseAmount: 15,
+                    statsDays: 7,
+                    topNConsumption: 10,
+                    autoBackup: true,
+                    backupInterval: 24,
+                    lowStockThreshold: 250
+                };
+            }
+            config.inventoryConfig[key] = value;
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            showNotification('库存配置已自动保存');
+        }
+        
+        // 加载桌位列表
+        function loadTableList() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const container = document.getElementById('tableGrid');
+            
+            document.getElementById('currentTableCount').textContent = tables.length;
+            
+            container.innerHTML = tables.map(table => `
+                <div class="table-mini ${table.status}">
+                    <div class="table-name">${table.name}</div>
+                    <div class="table-status">${table.status === 'in-use' ? '使用中' : '空闲'}</div>
+                </div>
+            `).join('');
+        }
+        
+        // 添加1个桌位
+        function addOneTable() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const newTableId = `table_${Date.now()}`;
+            const newTableName = `${tables.length + 1}号桌`;
+            
+            tables.push({
+                id: newTableId,
+                name: newTableName,
+                status: 'free',
+                startTime: null,
+                pauseTime: null,
+                paused: false,
+                chargeType: null,
+                customerType: null,
+                customerPhone: null,
+                note: null
+            });
+            
+            localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+            loadTableList();
+            showNotification('桌位已添加');
+        }
+        
+        // 删除空闲桌位
+        function deleteFreeTables() {
+            const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+            const freeTables = tables.filter(t => t.status === 'free');
+            
+            if (freeTables.length === 0) {
+                alert('没有空闲的桌位可以删除！');
+                return;
+            }
+            
+            if (confirm(`确定要删除 ${freeTables.length} 个空闲桌位吗？`)) {
+                const activeTables = tables.filter(t => t.status === 'in-use');
+                localStorage.setItem('perlerTimerTables', JSON.stringify(activeTables));
+                loadTableList();
+                showNotification('空闲桌位已删除');
+            }
+        }
+        
+        // 重新生成桌位
+        function regenerateTables() {
+            if (!confirm('确定要重新生成桌位吗？所有桌位将被重置！')) {
+                return;
+            }
+            
+            const count = parseInt(prompt('请输入桌位数：', '30')) || 30;
+            
+            const tables = [];
+            for (let i = 1; i <= count; i++) {
+                tables.push({
+                    id: `table_${i}`,
+                    name: `${i}号桌`,
+                    status: 'free',
+                    startTime: null,
+                    pauseTime: null,
+                    paused: false,
+                    chargeType: null,
+                    customerType: null,
+                    customerPhone: null,
+                    note: null
+                });
+            }
+            
+            localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
+            loadTableList();
+            showNotification('桌位已重新生成');
+        }
+        
+        // 处理色号图片上传
+        function handleColorImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 200 * 1024) {
+                alert('图片大小不能超过200KB！');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentColorImage = e.target.result;
+                updateColorImageDisplay();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 从URL加载色号图片
+        function loadColorImageFromUrl() {
+            const url = document.getElementById('colorImageUrl').value.trim();
+            if (url) {
+                currentColorImage = url;
+                updateColorImageDisplay();
+            }
+        }
+        
+        // 更新色号图片显示
+        function updateColorImageDisplay() {
+            const placeholder = document.getElementById('colorImagePlaceholder');
+            const display = document.getElementById('colorImageDisplay');
+            
+            if (currentColorImage) {
+                placeholder.style.display = 'none';
+                display.style.display = 'block';
+                display.src = currentColorImage;
+            } else {
+                placeholder.style.display = 'block';
+                display.style.display = 'none';
+            }
+        }
+        
+        // 清除色号图片
+        function clearColorImage() {
+            currentColorImage = null;
+            document.getElementById('colorImageUrl').value = '';
+            updateColorImageDisplay();
+        }
+        
+        // 处理图标上传
+        function handleIconUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 100 * 1024) {
+                alert('图片大小不能超过100KB！');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                config.shopIcon = e.target.result;
+                updateIconDisplay();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // 从URL加载图标
+        function loadIconFromUrl() {
+            const url = document.getElementById('iconUrl').value.trim();
+            if (url) {
+                config.shopIcon = url;
+                updateIconDisplay();
+            }
+        }
+        
+        // 更新图标显示
+        function updateIconDisplay() {
+            const placeholder = document.getElementById('iconPlaceholder');
+            const preview = document.getElementById('iconPreview');
+            
+            if (config.shopIcon) {
+                placeholder.style.display = 'none';
+                preview.style.display = 'block';
+                preview.src = config.shopIcon;
+            } else {
+                placeholder.style.display = 'block';
+                preview.style.display = 'none';
+            }
+        }
+        
+        // 清除图标
+        function clearIcon() {
+            config.shopIcon = '';
+            document.getElementById('iconUrl').value = '';
+            updateIconDisplay();
+        }
+        
+        // 保存设置
+        function saveSettings() {
+            config.shopName = document.getElementById('shopName').value;
+            config.shopPhone = document.getElementById('shopPhone').value;
+            config.shopAddress = document.getElementById('shopAddress').value;
+            config.pricePerHour = parseFloat(document.getElementById('pricePerHour').value) || 15;
+            config.pricePerDay = parseFloat(document.getElementById('pricePerDay').value) || 50;
+            config.memberDiscount = parseFloat(document.getElementById('memberDiscount').value) || 10;
+            config.vipDiscount = parseFloat(document.getElementById('vipDiscount').value) || 20;
+            config.studentDiscount = parseFloat(document.getElementById('studentDiscount').value) || 15;
+            
+            // 保存平台费率（V3.0新增）
+            config.platformFees = {
+                meituan: { name: '美团', feeRate: parseFloat(document.getElementById('meituanFeeRate').value) || 15, enabled: true },
+                douyin: { name: '抖音', feeRate: parseFloat(document.getElementById('douyinFeeRate').value) || 18, enabled: true },
+                dianping: { name: '大众点评', feeRate: parseFloat(document.getElementById('dianpingFeeRate').value) || 12, enabled: true },
+                xiaohongshu: { name: '小红书', feeRate: parseFloat(document.getElementById('xiaohongshuFeeRate').value) || 10, enabled: true },
+                custom: { name: '其他平台', feeRate: parseFloat(document.getElementById('customFeeRate').value) || 0, enabled: false }
+            };
+            
+            // V3.1新增：保存用户管理
+            config.users = loadUsersFromUI();
+            
+            // V3.1新增：保存费用分摊
+            config.costSharing = {
+                enabled: document.getElementById('costSharingEnabled').value === 'true',
+                sharingScope: document.getElementById('sharingScope').value || 'revenue',
+                partners: loadPartnersFromUI()
+            };
+            
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            
+            updateShopNameDisplay();
+            showNotification('设置已保存');
+        }
+        
+        // 导出配置
+        function exportConfig() {
+            const exportData = {
+                ...config,
+                tables: JSON.parse(localStorage.getItem('perlerTimerTables') || '[]'),
+                version: 'V2.2',
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `拼豆计时器配置_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('配置已导出');
+        }
+        
+        // 导入配置
+        function importConfig(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // 验证数据格式
+                    if (importData.version && importData.shopName !== undefined) {
+                        // 保留原有数据结构
+                        const originalTables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
+                        const originalOrders = JSON.parse(localStorage.getItem('perlerTimerOrders') || '[]');
+                        const originalExpenses = JSON.parse(localStorage.getItem('perlerTimerExpenses') || '[]');
+                        const originalBeads = JSON.parse(localStorage.getItem('perlerTimerBeads') || '[]');
+                        const originalLogs = JSON.parse(localStorage.getItem('perlerTimerInventoryLogs') || '[]');
+                        
+                        // 导入配置
+                        config = {...config, ...importData};
+                        
+                        // 如果有桌位数据，可选择是否导入
+                        if (importData.tables && confirm('检测到桌位数据，是否导入？\n\n注意：这将覆盖现有桌位数据！')) {
+                            localStorage.setItem('perlerTimerTables', JSON.stringify(importData.tables));
+                        }
+                        
+                        localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+                        
+                        loadSettings();
+                        loadTableList();
+                        updateIconDisplay();
+                        updateShopNameDisplay();
+                        
+                        showNotification('配置已导入');
+                    } else {
+                        alert('导入失败：文件格式不正确！');
+                    }
+                } catch (error) {
+                    alert('导入失败：文件格式错误！');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        // 加载色号列表
+        function loadColorList() {
+            const filter = document.getElementById('colorGroupFilter').value;
+            const sortBy = document.getElementById('colorSortBy').value;
+            const container = document.getElementById('colorList');
+            let beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            
+            // 如果没有色号，从默认色卡初始化
+            if (beads.length === 0) {
+                beads = [...mard221Colors].map(c => ({
+                    code: c.code,
+                    name: c.name,
+                    color: c.color,
+                    stock: 0,
+                    stockGram: 0
+                }));
+                localStorage.setItem('perlerTimerBeads', JSON.stringify(beads));
+            }
+            
+            // 获取分组列表
+            const groups = JSON.parse(localStorage.getItem('perlerTimerColorGroups')) || [];
+            const groupMap = {};
+            groups.forEach(g => {
+                groupMap[g.code] = g.name;
+            });
+            
+            // 按分组筛选
+            if (filter !== 'all') {
+                beads = beads.filter(b => b.code.startsWith(filter));
+            }
+            
+            const [sortField, sortOrder] = sortBy.split('-');
+            
+            beads.sort((beadA, beadB) => {
+                let comparison = 0;
+                if (sortField === 'code') {
+                    const aLetter = beadA.code.charAt(0);
+                    const bLetter = beadB.code.charAt(0);
+                    const aNum = parseInt(beadA.code.slice(1)) || 0;
+                    const bNum = parseInt(beadB.code.slice(1)) || 0;
+                    
+                    if (aLetter !== bLetter) {
+                        comparison = aLetter.localeCompare(bLetter);
+                    } else {
+                        comparison = aNum - bNum;
+                    }
+                } else if (sortField === 'name') {
+                    comparison = beadA.name.localeCompare(beadB.name);
+                } else if (sortField === 'stock') {
+                    comparison = (beadA.stockGram || 0) - (beadB.stockGram || 0);
+                }
+                return sortOrder === 'desc' ? -comparison : comparison;
+            });
+            
+            document.getElementById('colorCount').textContent = beads.length;
+            
+            if (filter !== 'all') {
+                container.innerHTML = beads.map(bead => `
+                    <div class="color-mini-card">
+                        <div class="color-header">
+                            <div class="color-preview" style="background: ${bead.color};"></div>
+                            <div class="color-info">
+                                <div class="color-code">${bead.code}</div>
+                                <div class="color-name">${bead.name || ''}</div>
+                            </div>
+                        </div>
+                        <div class="color-stock">
+                            <div class="stock-main">
+                                <span class="stock-value">${bead.stockGram || 0}</span>
+                                <span class="stock-unit">克</span>
+                            </div>
+                        </div>
+                        <div class="color-actions">
+                            <button onclick="deleteColor('${bead.code}')" class="btn-mini">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                // 全部显示按分组
+                let html = '';
+                const allGroups = [...new Set(beads.map(b => b.code.charAt(0)))].sort();
+                
+                allGroups.forEach(groupKey => {
+                    const groupColors = beads.filter(b => b.code.startsWith(groupKey));
+                    if (groupColors.length > 0) {
+                        const groupName = groupMap[groupKey] || `${groupKey}组`;
+                        html += `
+                            <div class="color-group-section">
+                                <h4 class="color-group-title">${groupName}</h4>
+                                <div class="color-mini-grid">
+                                    ${groupColors.map(bead => `
+                                        <div class="color-mini-card">
+                                            <div class="color-header">
+                                                <div class="color-preview" style="background: ${bead.color};"></div>
+                                                <div class="color-info">
+                                                    <div class="color-code">${bead.code}</div>
+                                                    <div class="color-name">${bead.name || ''}</div>
+                                                </div>
+                                            </div>
+                                            <div class="color-stock">
+                                                <div class="stock-main">
+                                                    <span class="stock-value">${bead.stockGram || 0}</span>
+                                                    <span class="stock-unit">克</span>
+                                                </div>
+                                            </div>
+                                            <div class="color-actions">
+                                                <button onclick="deleteColor('${bead.code}')" class="btn-mini">🗑️</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                container.innerHTML = html;
+            }
+        }
+        
+        function openColorModal() {
+            editingColorCode = null;
+            document.getElementById('colorModalTitle').textContent = '➕ 添加色号';
+            document.getElementById('colorCode').value = '';
+            document.getElementById('colorGroup').value = 'A';
+            document.getElementById('colorModal').style.display = 'flex';
+        }
+        
+        // 关闭色号弹窗
+        function closeColorModal() {
+            document.getElementById('colorModal').style.display = 'none';
+            editingColorCode = null;
+            currentColorImage = null;
+        }
+        
+        // 保存色号
+        function saveColor() {
+            const code = document.getElementById('colorCode').value.trim().toUpperCase();
+            const group = document.getElementById('colorGroup').value;
+            
+            if (!code) {
+                alert('请填写色号！');
+                return;
+            }
+            
+            // 检查色号格式
+            if (!/^[A-J]\d*$/.test(code)) {
+                alert('色号格式不正确！应为字母A-J开头，如：A1');
+                return;
+            }
+            
+            const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            
+            // 检查色号是否重复
+            if (editingColorCode && editingColorCode !== code) {
+                if (beads.some(b => b.code === code)) {
+                    alert('该色号已存在！');
+                    return;
+                }
+            } else if (!editingColorCode) {
+                if (beads.some(b => b.code === code)) {
+                    alert('该色号已存在！');
+                    return;
+                }
+            }
+            
+            if (editingColorCode) {
+                const index = beads.findIndex(b => b.code === editingColorCode);
+                if (index !== -1) {
+                    beads[index].code = code;
+                }
+            } else {
+                beads.push({
+                    code: code,
+                    color: '#FF0000',
+                    stock: 0,
+                    stockGram: 0
+                });
+            }
+            
+            localStorage.setItem('perlerTimerBeads', JSON.stringify(beads));
+            loadColorList();
+            closeColorModal();
+            showNotification('色号已保存');
+        }
+        
+        // 删除色号
+        function deleteColor(code) {
+            if (!confirm(`确定要删除色号 ${code} 吗？`)) return;
+            
+            const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            const filtered = beads.filter(b => b.code !== code);
+            localStorage.setItem('perlerTimerBeads', JSON.stringify(filtered));
+            loadColorList();
+            showNotification('色号已删除');
+        }
+        
+        // 加载色号分组列表
+        function loadColorGroupList() {
+            const container = document.getElementById('colorGroupList');
+            const groups = JSON.parse(localStorage.getItem('perlerTimerColorGroups')) || [];
+            
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无分组</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>分组代码</th>
+                            <th>分组名称</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${groups.map(group => `
+                            <tr>
+                                <td>${group.code}</td>
+                                <td>${group.name}</td>
+                                <td>
+                                    <button onclick="deleteColorGroup('${group.code}')" class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            updateColorGroupFilter();
+        }
+        
+        // 添加色号分组
+        function addColorGroup() {
+            const code = document.getElementById('newGroupCode').value.trim().toUpperCase();
+            const name = document.getElementById('newGroupName').value.trim();
+            
+            if (!code || !name) {
+                alert('请填写分组代码和名称！');
+                return;
+            }
+            
+            const groups = JSON.parse(localStorage.getItem('perlerTimerColorGroups')) || [];
+            if (groups.find(g => g.code === code)) {
+                alert('该分组代码已存在！');
+                return;
+            }
+            
+            groups.push({ code, name });
+            localStorage.setItem('perlerTimerColorGroups', JSON.stringify(groups));
+            
+            document.getElementById('newGroupCode').value = '';
+            document.getElementById('newGroupName').value = '';
+            
+            loadColorGroupList();
+            showNotification('分组已添加');
+        }
+        
+        // 删除色号分组
+        function deleteColorGroup(code) {
+            if (!confirm(`确定要删除分组 ${code} 吗？`)) return;
+            
+            const groups = JSON.parse(localStorage.getItem('perlerTimerColorGroups')) || [];
+            const filtered = groups.filter(g => g.code !== code);
+            localStorage.setItem('perlerTimerColorGroups', JSON.stringify(filtered));
+            loadColorGroupList();
+            showNotification('分组已删除');
+        }
+        
+        // 更新色号分组筛选选项
+        function updateColorGroupFilter() {
+            const select = document.getElementById('colorGroupFilter');
+            const groups = JSON.parse(localStorage.getItem('perlerTimerColorGroups')) || [];
+            
+            const currentValue = select.value;
+            select.innerHTML = '<option value="all">全部</option>';
+            
+            groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.code;
+                option.textContent = `${group.code}组 - ${group.name}`;
+                select.appendChild(option);
+            });
+            
+            if (currentValue) {
+                select.value = currentValue;
+            }
+        }
+        
+        // 导出色号
+        function exportColors() {
+            const beads = JSON.parse(localStorage.getItem('perlerTimerBeads')) || [];
+            const exportData = beads.map(b => ({
+                code: b.code,
+                name: b.name,
+                color: b.color
+            }));
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `拼豆色号_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('色号已导出');
+        }
+        
+        // 重置为默认色号
+        function resetToDefaultColors() {
+            if (!confirm('确定要重置为默认色号吗？\n\n这将覆盖所有自定义色号！')) return;
+            if (!confirm('最后确认：确定要重置吗？')) return;
+            
+            const defaultBeads = [...mard221Colors].map(c => ({
+                code: c.code,
+                name: c.name,
+                color: c.color,
+                stock: 0,
+                stockGram: 0
+            }));
+            
+            localStorage.setItem('perlerTimerBeads', JSON.stringify(defaultBeads));
+            loadColorList();
+            showNotification('色号已重置为默认');
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('⚠️ 警告：此操作将清空所有数据且无法恢复！\n\n确定要继续吗？')) {
+                if (confirm('⚠️ 最后确认：确定要清空所有数据吗？')) {
+                    localStorage.clear();
+                    showNotification('所有数据已清空');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            }
+        }
+        
+        // ==================== V3.2新增：其他收费项目配置功能 ====================
+        
+        // 加载其他收费项目列表
+        function loadOtherChargeItemsList() {
+            const container = document.getElementById('otherChargeItemsList');
+            console.log('=== 调试：加载收费项目列表 ===');
+            console.log('config.otherChargeItems:', config.otherChargeItems);
+            console.log('config 对象:', config);
+            const items = config.otherChargeItems || [];
+            console.log('items 数组:', items);
+            console.log('items.length:', items.length);
+            
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无收费项目</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="charge-items-table">
+                    <thead>
+                        <tr>
+                            <th>项目名称</th>
+                            <th>价格</th>
+                            <th>单位</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(item => `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>¥${item.price.toFixed(2)}</td>
+                                <td>${item.unit}</td>
+                                <td>
+                                    <span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">
+                                        ${item.enabled ? '启用' : '禁用'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button onclick="toggleOtherChargeItem(${item.id})" class="btn btn-sm ${item.enabled ? 'btn-warning' : 'btn-success'}">
+                                        ${item.enabled ? '禁用' : '启用'}
+                                    </button>
+                                    <button onclick="editOtherChargeItem(${item.id})" class="btn btn-sm btn-primary">编辑</button>
+                                    <button onclick="deleteOtherChargeItem(${item.id})" class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // 添加其他收费项目
+        function addOtherChargeItem() {
+            const name = document.getElementById('newChargeItemName').value.trim();
+            const price = parseFloat(document.getElementById('newChargeItemPrice').value) || 0;
+            const unit = document.getElementById('newChargeItemUnit').value.trim() || '项';
+            
+            if (!name) {
+                alert('请输入项目名称！');
+                return;
+            }
+            
+            if (!config.otherChargeItems) {
+                config.otherChargeItems = [];
+            }
+            
+            const newId = Date.now();
+            config.otherChargeItems.push({
+                id: newId,
+                name: name,
+                price: price,
+                unit: unit,
+                enabled: true
+            });
+            
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            loadOtherChargeItemsList();
+            
+            document.getElementById('newChargeItemName').value = '';
+            document.getElementById('newChargeItemPrice').value = '';
+            document.getElementById('newChargeItemUnit').value = '';
+            
+            showNotification('收费项目已添加');
+        }
+        
+        // 切换其他收费项目状态
+        function toggleOtherChargeItem(id) {
+            const item = config.otherChargeItems.find(i => i.id === id);
+            if (item) {
+                item.enabled = !item.enabled;
+                localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+                loadOtherChargeItemsList();
+                showNotification('收费项目状态已更新');
+            }
+        }
+        
+        // 编辑其他收费项目
+        function editOtherChargeItem(id) {
+            const item = config.otherChargeItems.find(i => i.id === id);
+            if (!item) return;
+            
+            const newName = prompt('请输入新的项目名称：', item.name);
+            if (newName === null) return;
+            
+            if (!newName.trim()) {
+                alert('项目名称不能为空！');
+                return;
+            }
+            
+            const newPrice = prompt('请输入新的价格：', item.price);
+            if (newPrice === null) return;
+            
+            const newUnit = prompt('请输入新的单位：', item.unit);
+            if (newUnit === null) return;
+            
+            item.name = newName.trim();
+            item.price = parseFloat(newPrice) || 0;
+            item.unit = newUnit.trim() || '项';
+            
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            loadOtherChargeItemsList();
+            showNotification('收费项目已更新');
+        }
+        
+        // 删除其他收费项目
+        function deleteOtherChargeItem(id) {
+            if (!confirm('确定要删除这个收费项目吗？')) return;
+            
+            config.otherChargeItems = config.otherChargeItems.filter(i => i.id !== id);
+            localStorage.setItem('perlerTimerConfig', JSON.stringify(config));
+            loadOtherChargeItemsList();
+            showNotification('收费项目已删除');
+        }
+        
+        // ==================== V3.1新增：用户管理功能 ====================
+        
+        // 加载用户列表
+        function loadUserList() {
+            const container = document.getElementById('userList');
+            const users = config.users || [];
+            
+            if (users.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无用户</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>角色</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.username}</td>
+                                <td>${user.name}</td>
+                                <td>
+                                    <span class="role-badge ${user.role}">
+                                        ${user.role === 'admin' ? '管理员' : '普通用户'}
+                                    </span>
+                                </td>
+                                <td>
+                                    ${user.username !== 'admin' ? `
+                                        <button onclick="deleteUser('${user.username}')" class="btn btn-sm btn-danger">删除</button>
+                                    ` : '-'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // 添加用户
+        function addUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const name = document.getElementById('newUserName').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            
+            if (!username || !password || !name) {
+                alert('请填写完整信息！');
+                return;
+            }
+            
+            const users = config.users || [];
+            if (users.find(u => u.username === username)) {
+                alert('用户名已存在！');
+                return;
+            }
+            
+            users.push({ username, password, name, role });
+            config.users = users;
+            
+            // 清空输入框
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newUserName').value = '';
+            
+            loadUserList();
+            showNotification('用户已添加');
+        }
+        
+        // 删除用户
+        function deleteUser(username) {
+            if (username === 'admin') {
+                alert('不能删除管理员账号！');
+                return;
+            }
+            
+            if (!confirm(`确定要删除用户 "${username}" 吗？`)) return;
+            
+            const users = config.users || [];
+            config.users = users.filter(u => u.username !== username);
+            
+            loadUserList();
+            showNotification('用户已删除');
+        }
+        
+        // 从UI加载用户数据
+        function loadUsersFromUI() {
+            return config.users || [];
+        }
+        
+        // ==================== V3.1新增：费用分摊功能 ====================
+        
+        // 切换费用分摊显示
+        function toggleCostSharing() {
+            const enabled = document.getElementById('costSharingEnabled').value === 'true';
+            document.getElementById('costSharingConfig').style.display = enabled ? 'block' : 'none';
+        }
+        
+        // 加载合伙人列表
+        function loadPartnerList() {
+            const container = document.getElementById('partnerList');
+            const costSharing = config.costSharing || {};
+            const partners = costSharing.partners || [];
+            
+            if (partners.length === 0) {
+                container.innerHTML = '<div class="empty-state">暂无合伙人</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="partner-table">
+                    <thead>
+                        <tr>
+                            <th>名称</th>
+                            <th>比例</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${partners.map(partner => `
+                            <tr>
+                                <td>${partner.name}</td>
+                                <td>${partner.shareRatio}%</td>
+                                <td>
+                                    <span class="status-badge ${partner.enabled ? 'enabled' : 'disabled'}">
+                                        ${partner.enabled ? '启用' : '禁用'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button onclick="deletePartner(${partner.id})" class="btn btn-sm btn-danger">删除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        // 添加合伙人
+        function addPartner() {
+            const name = document.getElementById('newPartnerName').value.trim();
+            const ratio = parseFloat(document.getElementById('newPartnerRatio').value) || 0;
+            const enabled = document.getElementById('newPartnerEnabled').checked;
+            
+            if (!name) {
+                alert('请输入合伙人名称！');
+                return;
+            }
+            
+            if (ratio <= 0 || ratio > 100) {
+                alert('比例必须在0-100之间！');
+                return;
+            }
+            
+            const costSharing = config.costSharing || { partners: [] };
+            const partners = costSharing.partners || [];
+            
+            const newId = partners.length > 0 ? Math.max(...partners.map(p => p.id)) + 1 : 1;
+            partners.push({ id: newId, name, shareRatio: ratio, enabled });
+            
+            config.costSharing = { ...costSharing, partners };
+            
+            // 清空输入框
+            document.getElementById('newPartnerName').value = '';
+            document.getElementById('newPartnerRatio').value = '';
+            document.getElementById('newPartnerEnabled').checked = true;
+            
+            loadPartnerList();
+            showNotification('合伙人已添加');
+        }
+        
+        // 删除合伙人
+        function deletePartner(id) {
+            if (!confirm('确定要删除该合伙人吗？')) return;
+            
+            const costSharing = config.costSharing || { partners: [] };
+            const partners = costSharing.partners || [];
+            config.costSharing = { ...costSharing, partners: partners.filter(p => p.id !== id) };
+            
+            loadPartnerList();
+            showNotification('合伙人已删除');
+        }
+        
+        // 从UI加载合伙人数据
+        function loadPartnersFromUI() {
+            const costSharing = config.costSharing || {};
+            return costSharing.partners || [];
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initSettingsPage();
+        });
+    </script>
+</body>
+</html>
