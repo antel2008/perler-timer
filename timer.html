@@ -382,6 +382,25 @@
 
         // 当前合并的桌位
         let mergedTables = [];
+
+        // 确保 formatDuration 函数可用（从 common.js 复制，防止加载顺序问题）
+        if (typeof formatDuration === 'undefined') {
+            function formatDuration(ms) {
+                if (!ms || ms < 0) ms = 0;
+
+                const hours = Math.floor(ms / (1000 * 60 * 60));
+                const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+                if (hours > 0) {
+                    return `${hours}小时${minutes}分钟`;
+                } else if (minutes > 0) {
+                    return `${minutes}分钟`;
+                } else {
+                    return `${seconds}秒`;
+                }
+            }
+        }
         
         // 初始化页面
         function initTimerPage() {
@@ -1101,6 +1120,48 @@
                 `¥${todayOrders.reduce((sum, o) => sum + o.actualPayment, 0).toFixed(2)}`;
         }
         
+        // 页面加载时初始化相关变量
+        let timerUpdateCount = 0;
+        let timerIntervalId = null;
+        let lastUpdateTime = Date.now();
+        let isPageVisible = true;
+        
+        // 使用 requestAnimationFrame 进行持续更新（移动端优化）
+        let rafUpdateId = null;
+        let lastRafUpdateTime = 0;
+
+        function startRafUpdates() {
+            if (rafUpdateId) {
+                cancelAnimationFrame(rafUpdateId);
+            }
+            
+            function rafLoop(timestamp) {
+                if (!isPageVisible) {
+                    rafUpdateId = requestAnimationFrame(rafLoop);
+                    return;
+                }
+                
+                // 限制更新频率，避免过度消耗资源
+                if (timestamp - lastRafUpdateTime >= 1000) {
+                    lastRafUpdateTime = timestamp;
+                    updateAllTimers();
+                }
+                
+                rafUpdateId = requestAnimationFrame(rafLoop);
+            }
+            
+            rafUpdateId = requestAnimationFrame(rafLoop);
+            console.log('RAF 更新循环已启动');
+        }
+
+        function stopRafUpdates() {
+            if (rafUpdateId) {
+                cancelAnimationFrame(rafUpdateId);
+                rafUpdateId = null;
+                console.log('RAF 更新循环已停止');
+            }
+        }
+
         // 更新所有桌位的计时显示
         function updateAllTimers() {
             try {
@@ -1152,25 +1213,82 @@
                 console.error('更新计时器时出错:', error);
             }
         }
-        
-        // 页面加载时初始化
+
+        function startTimerUpdates() {
+            if (timerIntervalId) {
+                clearInterval(timerIntervalId);
+            }
+            timerIntervalId = setInterval(function() {
+                timerUpdateCount++;
+                lastUpdateTime = Date.now();
+                console.log(`计时器更新次数: ${timerUpdateCount}`);
+                updateAllTimers();
+            }, 1000);
+            
+            // 同时启动 RAF 更新循环
+            startRafUpdates();
+            
+            console.log('定时器已启动');
+        }
+
+        function stopTimerUpdates() {
+            if (timerIntervalId) {
+                clearInterval(timerIntervalId);
+                timerIntervalId = null;
+                console.log('定时器已停止');
+            }
+            
+            // 同时停止 RAF 更新循环
+            stopRafUpdates();
+        }
+
         window.addEventListener('DOMContentLoaded', function() {
+            console.log('页面 DOM 加载完成，开始初始化...');
             initTimerPage();
 
-            // 每秒更新计时
-            setInterval(updateAllTimers, 1000);
+            // 启动定时器
+            startTimerUpdates();
 
             // 监听页面可见性变化（移动端优化）
-            document.addEventListener('visibilitychange', function() {
-                if (!document.hidden) {
-                    // 页面从后台回到前台时，立即更新一次
+              document.addEventListener('visibilitychange', function() {
+                  const wasVisible = isPageVisible;
+                  isPageVisible = !document.hidden;
+                console.log('页面可见性变化:', isPageVisible ? '显示' : '隐藏');
+
+                if (isPageVisible && !wasVisible) {
+                    // 页面从后台回到前台时，立即更新多次以确保同步
+                    console.log('页面重新可见，立即更新计时器');
                     updateAllTimers();
+                    
+                    // 重新启动定时器
+                    startTimerUpdates();
+                    
+                    // 使用 requestAnimationFrame 确保更新
+                    requestAnimationFrame(function() {
+                        updateAllTimers();
+                    });
+                    
+                    // 短时间内再次更新，确保所有变化都反映
+                    setTimeout(updateAllTimers, 100);
+                    setTimeout(updateAllTimers, 500);
+                } else if (!isPageVisible) {
+                    // 页面隐藏时，停止定时器以节省资源
+                    stopTimerUpdates();
                 }
             });
 
             // 页面获得焦点时更新（用户切换标签页时）
             window.addEventListener('focus', function() {
+                console.log('页面获得焦点');
+                isPageVisible = true;
                 updateAllTimers();
+                startTimerUpdates();
+            });
+
+            // 页面失去焦点时
+            window.addEventListener('blur', function() {
+                console.log('页面失去焦点');
+                // 不停止定时器，因为移动端可能只是切换应用
             });
 
             // 页面滚动时也更新（避免某些浏览器的优化）
@@ -1179,6 +1297,24 @@
                 clearTimeout(scrollTimeout);
                 scrollTimeout = setTimeout(updateAllTimers, 200);
             });
+
+            // 触摸事件触发更新（移动端优化）
+            let touchTimeout;
+            window.addEventListener('touchstart', function() {
+                clearTimeout(touchTimeout);
+                touchTimeout = setTimeout(updateAllTimers, 100);
+            });
+
+            // 页面重新激活时强制刷新（移动端返回应用时）
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    console.log('页面从缓存恢复');
+                    updateAllTimers();
+                    startTimerUpdates();
+                }
+            });
+
+            console.log('计时器初始化完成');
         });
     </script>
 </body>
