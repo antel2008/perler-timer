@@ -25,16 +25,40 @@ self.addEventListener('install', function(event) {
                 return cache.addAll(urlsToCache);
             })
     );
+    // 强制激活新的 service worker
+    self.skipWaiting();
 });
 
 self.addEventListener('fetch', function(event) {
     event.respondWith(
         caches.match(event.request)
             .then(function(response) {
+                // 对于 HTML 页面，使用网络优先策略以确保获取最新内容
+                if (event.request.mode === 'navigate') {
+                    return fetch(event.request)
+                        .catch(function() {
+                            return caches.match(event.request);
+                        });
+                }
+
+                // 对于其他资源，使用缓存优先策略
                 if (response) {
                     return response;
                 }
-                return fetch(event.request);
+
+                // 尝试从网络获取
+                return fetch(event.request)
+                    .then(function(networkResponse) {
+                        // 缓存新的响应
+                        return caches.open(CACHE_NAME)
+                            .then(function(cache) {
+                                cache.put(event.request, networkResponse.clone());
+                                return networkResponse;
+                            });
+                    })
+                    .catch(function() {
+                        return response;
+                    });
             })
     );
 });
@@ -50,6 +74,9 @@ self.addEventListener('activate', function(event) {
                     }
                 })
             );
+        }).then(function() {
+            // 立即控制所有客户端
+            return self.clients.claim();
         })
     );
 });
