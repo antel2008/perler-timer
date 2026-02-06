@@ -288,6 +288,15 @@
                     <span class="net-income-value" id="checkoutNetIncome">¥0.00</span>
                 </div>
             </div>
+
+            <hr>
+
+            <div class="form-group">
+                <label> 其他收费项目</label>
+                <div id="otherChargesList" class="other-charges-list"></div>
+                <button onclick="addOtherChargeItem()" class="btn btn-sm btn-warning" style="margin-top: 10px;">➕ 添加收费项目</button>
+            </div>
+
             <div class="form-group">
                 <label>客户类型</label>
                 <select id="checkoutCustomerTypeSelect" class="form-control" onchange="updateCheckoutPrice()">
@@ -304,23 +313,15 @@
                     </optgroup>
                 </select>
             </div>
-                <div class="form-group">
-                    <label>实际收款（元）</label>
-                    <input type="number" id="actualPayment" class="form-control" step="0.01" min="0">
-                </div>
-                <div class="form-group">
+            <div class="form-group">
+                <label>实际收款（元）</label>
+                <input type="number" id="actualPayment" class="form-control" step="0.01" min="0">
+            </div>
+            <div class="form-group">
                 <label>备注</label>
                 <textarea id="checkoutNote" class="form-control" placeholder="备注信息..."></textarea>
             </div>
-            
-            <hr>
-            
-            <div class="form-group">
-                <label> 其他收费项目</label>
-                <div id="otherChargesList" class="other-charges-list"></div>
-                <button onclick="addOtherChargeItem()" class="btn btn-sm btn-warning" style="margin-top: 10px;">➕ 添加收费项目</button>
-            </div>
-            
+
             <div class="modal-actions">
                 <button onclick="closeCheckoutModal()" class="btn btn-secondary">取消</button>
                 <button onclick="confirmCheckout()" class="btn btn-primary">确认收款</button>
