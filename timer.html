@@ -375,20 +375,22 @@
     <script>
         // 当前选中的桌位
         let selectedTable = null;
-        
+
         // 当前其他收费项目记录
         let currentOtherCharges = [];
-        
+
         // 当前合并的桌位
         let mergedTables = [];
         
         // 初始化页面
         function initTimerPage() {
+            console.log('初始化计时页面...');
             loadConfig();
             initTables(); // 初始化桌位
             updateShopNameDisplay();
             loadTables();
             updateTimerStats();
+            console.log('初始化完成，定时器已启动');
             
             // 搜索功能
             document.getElementById('tableSearch').addEventListener('input', function() {
@@ -400,16 +402,22 @@
         function loadTables(searchTerm = '') {
             const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
             const container = document.getElementById('tableList');
-            
+
             let filteredTables = tables;
             if (searchTerm) {
-                filteredTables = tables.filter(table => 
+                filteredTables = tables.filter(table =>
                     table.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     table.customerPhone?.includes(searchTerm)
                 );
             }
-            
-            container.innerHTML = filteredTables.map(table => `
+
+            container.innerHTML = filteredTables.map(table => {
+                // 计算初始时长用于显示
+                const now = Date.now();
+                const initialDuration = table.status === 'in-use' && table.startTime ?
+                    (table.paused ? table.pauseTime - table.startTime : now - table.startTime) : 0;
+
+                return `
                 <div class="table-card ${table.status === 'in-use' ? 'busy' : 'free'}" data-id="${table.id}">
                     <div class="table-header">
                         <h3>${table.name}</h3>
@@ -417,11 +425,11 @@
                             ${table.status === 'in-use' ? '使用中' : '空闲'}
                         </span>
                     </div>
-                    
+
                     ${table.status === 'in-use' ? `
                         <div class="table-timer">
                             <div class="timer-display" id="timer-${table.id}">
-                                ${formatDuration(table.startTime)}
+                                ${formatDuration(initialDuration)}
                             </div>
                             <div class="customer-info">
                                 ${table.chargeType === 'daily' ? '<span class="charge-badge">包日</span>' : ''}
@@ -430,12 +438,12 @@
                             </div>
                             ${table.note ? `<div class="table-note">${table.note}</div>` : ''}
                         </div>
-                        
+
                         <div class="table-cost">
                             <span>当前费用：</span>
                             <span class="cost-value" id="cost-${table.id}">¥0.00</span>
                         </div>
-                        
+
                         <div class="table-actions">
                             <button onclick="pauseResumeTimer('${table.id}')" class="btn ${table.paused ? 'btn-warning' : 'btn-info'}">
                                 ${table.paused ? '▶️ 继续' : '⏸️ 暂停'}
@@ -455,7 +463,10 @@
                         </div>
                     `}
                 </div>
-            `).join('');
+            `}).join('');
+
+            // 加载完成后立即更新一次计时显示（包括费用）
+            setTimeout(updateAllTimers, 100);
         }
         
         // 切换平台费率显示（V3.0新增）
@@ -505,10 +516,10 @@
         // 确认开始计时
         function confirmStartTimer() {
             if (!selectedTable) return;
-            
+
             const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
             const tableIndex = tables.findIndex(t => t.id === selectedTable.id);
-            
+
             if (tableIndex !== -1) {
                 const chargeType = document.getElementById('chargeType').value;
                 tables[tableIndex] = {
@@ -523,13 +534,13 @@
                     customerPhone: document.getElementById('memberPhone').value,
                     note: document.getElementById('startNote').value
                 };
-                
+
                 localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
-                
+
                 closeStartModal();
                 loadTables();
                 updateTimerStats();
-                
+
                 // 通知
                 showNotification(`${selectedTable.name} 计时已开始`);
             }
@@ -1089,20 +1100,33 @@
         
         // 更新所有桌位的计时显示
         function updateAllTimers() {
+            // 每次都从 localStorage 读取最新的桌位数据
             const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
-            
-            tables.filter(t => t.status === 'in-use').forEach(table => {
+            const inUseTables = tables.filter(t => t.status === 'in-use');
+
+            if (inUseTables.length === 0) return;
+
+            const now = Date.now();
+
+            inUseTables.forEach(table => {
                 const timerEl = document.getElementById(`timer-${table.id}`);
                 const costEl = document.getElementById(`cost-${table.id}`);
-                
+
                 if (timerEl && costEl) {
-                    const now = Date.now();
-                    const duration = table.paused ? 
-                        table.pauseTime - table.startTime : 
+                    const duration = table.paused ?
+                        table.pauseTime - table.startTime :
                         now - table.startTime;
-                    
+
+                    // 确保duration是有效的
+                    if (!duration || duration < 0 || !table.startTime) {
+                        timerEl.textContent = '0小时0分钟';
+                        costEl.textContent = '¥0.00';
+                        return;
+                    }
+
+                    // 格式化时间
                     timerEl.textContent = formatDuration(duration);
-                    
+
                     if (table.chargeType === 'daily') {
                         const discount = getDiscount(table.customerType);
                         const dailyPrice = (config.pricePerDay || 50) * (1 - discount);
@@ -1122,10 +1146,12 @@
         }
         
         // 页面加载时初始化
-        window.addEventListener('DOMContentLoaded', initTimerPage);
-        
-        // 每秒更新计时
-        setInterval(updateAllTimers, 1000);
+        window.addEventListener('DOMContentLoaded', function() {
+            initTimerPage();
+            
+            // 每秒更新计时
+            setInterval(updateAllTimers, 1000);
+        });
     </script>
 </body>
 </html>
