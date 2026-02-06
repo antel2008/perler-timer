@@ -904,13 +904,6 @@
             `).join('');
         }
         
-        // 格式化时长
-        function formatDuration(ms) {
-            const hours = Math.floor(ms / (1000 * 60 * 60));
-            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-            return `${hours}小时${minutes}分钟`;
-        }
-        
         // 确认结账
         function confirmCheckout() {
             if (!selectedTable) return;

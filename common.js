@@ -289,87 +289,6 @@ function showNotification(message, duration = 3000) {
     }, duration);
 }
 
-// 初始化后台计时器
-let globalTimerInterval = null;
-let lastUpdateTime = Date.now();
-
-function startGlobalTimer() {
-    if (globalTimerInterval) return;
-    
-    // 从localStorage恢复状态
-    const savedLastUpdate = localStorage.getItem('perlerTimerLastUpdate');
-    if (savedLastUpdate) {
-        lastUpdateTime = parseInt(savedLastUpdate);
-    }
-    
-    globalTimerInterval = setInterval(() => {
-        const now = Date.now();
-        const elapsed = now - lastUpdateTime;
-        
-        // 保存最后更新时间
-        localStorage.setItem('perlerTimerLastUpdate', now.toString());
-        
-        // 更新所有正在计时的桌位
-        const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
-        let hasChanges = false;
-        
-        tables.forEach(table => {
-            if (table.status === 'in-use' && !table.paused && table.startTime) {
-                // 桌位在计时中，确保startTime是最新的
-                hasChanges = true;
-            }
-        });
-        
-        if (hasChanges) {
-            localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
-        }
-        
-        lastUpdateTime = now;
-    }, 1000);
-}
-
-// 停止全局计时器
-function stopGlobalTimer() {
-    if (globalTimerInterval) {
-        clearInterval(globalTimerInterval);
-        globalTimerInterval = null;
-    }
-}
-
-// 恢复后台计时（页面可见性变化时处理）
-function handleVisibilityChange() {
-    if (document.hidden) {
-        // 页面隐藏，确保计时器继续运行
-        startGlobalTimer();
-    } else {
-        // 页面可见，恢复正常计时
-        const now = Date.now();
-        const savedLastUpdate = localStorage.getItem('perlerTimerLastUpdate');
-        
-        if (savedLastUpdate) {
-            const lastUpdate = parseInt(savedLastUpdate);
-            const elapsed = now - lastUpdate;
-            
-            // 如果页面隐藏超过5秒，需要调整计时
-            if (elapsed > 5000) {
-                const tables = JSON.parse(localStorage.getItem('perlerTimerTables') || '[]');
-                
-                tables.forEach(table => {
-                    if (table.status === 'in-use' && !table.paused && table.startTime) {
-                        // 补偿隐藏期间的时间
-                        table.startTime += elapsed;
-                    }
-                });
-                
-                localStorage.setItem('perlerTimerTables', JSON.stringify(tables));
-            }
-        }
-        
-        localStorage.setItem('perlerTimerLastUpdate', now.toString());
-        startGlobalTimer();
-    }
-}
-
 // 初始化桌位数据
 function initTables() {
     let tables = JSON.parse(localStorage.getItem('perlerTimerTables'));
@@ -405,26 +324,13 @@ loadConfig();
 // 初始化桌位
 initTables();
 
-// 启动全局计时器
-startGlobalTimer();
-
-// 监听页面可见性变化
-document.addEventListener('visibilitychange', handleVisibilityChange);
-
 // 请求通知权限
 if ('Notification' in window && Notification.permission === 'default') {
     Notification.requestPermission();
 }
 
-// 页面卸载前保存状态
-window.addEventListener('beforeunload', () => {
-    localStorage.setItem('perlerTimerLastUpdate', Date.now().toString());
-});
-
 // 页面加载完成
 window.addEventListener('load', () => {
-    localStorage.setItem('perlerTimerLastUpdate', Date.now().toString());
-    
     // 注册Service Worker（支持离线使用）
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
